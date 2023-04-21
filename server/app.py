@@ -1,6 +1,5 @@
 from flask import Flask, make_response, jsonify, request, session
-from flask_restful import Resource, Api
-from flask_migrate import Migrate
+from flask_restful import Resource
 
 from config import app, db, api, bcrypt
 from models import User, Item, Order
@@ -131,6 +130,7 @@ class Items(Resource):
         data = request.get_json()
         new_item = Item(
             name = data['name'],
+            category = data['category'],
             image = data['image'],
             description = data['description'],
             in_stock = data['in_stock'],

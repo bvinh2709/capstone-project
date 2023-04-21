@@ -5,7 +5,7 @@ from config import db, bcrypt
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    serialize_rules = ('-orders')
+    serialize_rules = ('-orders',)
 
     id = db.Column(db.Integer, primary_key = True)
     email = db.Column(db.String, nullable=False)
@@ -39,10 +39,11 @@ class User(db.Model, SerializerMixin):
 class Item(db.Model, SerializerMixin):
     __tablename__ = 'items'
 
-    serialize_rules = ('-orders')
+    serialize_rules = ('-orders',)
 
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String, nullable=False)
+    category = db.Column(db.String, nullable=False)
     image = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     in_stock = db.Column(db.Boolean, nullable=False)

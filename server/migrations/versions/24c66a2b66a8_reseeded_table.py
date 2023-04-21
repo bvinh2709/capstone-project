@@ -1,8 +1,8 @@
-"""seeding table
+"""reseeded table
 
-Revision ID: 68f14c052ee7
+Revision ID: 24c66a2b66a8
 Revises: 
-Create Date: 2023-04-21 06:21:34.002376
+Create Date: 2023-04-21 16:30:30.905493
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '68f14c052ee7'
+revision = '24c66a2b66a8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,6 +21,7 @@ def upgrade():
     op.create_table('items',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
+    sa.Column('category', sa.String(), nullable=False),
     sa.Column('image', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=False),
     sa.Column('in_stock', sa.Boolean(), nullable=False),
