@@ -2,11 +2,11 @@ import React from 'react'
 import MainCarousel from "./MainCarousel"
 import FoodMenu from "./FoodMenu";
 
-function Home() {
+function Home({user}) {
   return (
-    <div className="home">
+    <div>
       <MainCarousel />
-      <FoodMenu />
+      <FoodMenu user={user}/>
     </div>
   )
 }

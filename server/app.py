@@ -1,12 +1,38 @@
 from flask import Flask, make_response, jsonify, request, session
-from flask_restful import Resource
-
+from flask_restful import Resource, reqparse
+# import stripe
 from config import app, db, api, bcrypt
 from models import User, Item, Order
+
+# stripe.api_key = 'sk_test_51MzBCeHMeLOzkmO2brW3gQ3hOO9P9tOSTK9u5p6uZgQdngTeOT76iCtUbN3zQ8R3NneVuIbVQaoVmEs7JNPIaFl800L0j5ysWq'
+
+# YOUR_DOMAIN = 'http://localhost:5555'
 
 class HomePage(Resource):
     def get(self):
         return {'message': '200: Welcome to our Home Page'}, 200
+
+# class CreateCheckoutSession(Resource):
+#     def post(self):
+#         parser = reqparse.RequestParser()
+#         parser.add_argument('price_id', type=str, required=True)
+#         args = parser.parse_args()
+#         try:
+#             checkout_session = stripe.checkout.Session.create(
+#                 line_items=[
+#                 {'price': args['price_id'],
+#                     'quantity': 1,
+#                 },
+#                 ],
+#                 mode="payment",
+#                 success_url = YOUR_DOMAIN + '?success=true',
+#                 cancel_url=YOUR_DOMAIN + '?canceled=true',
+#             )
+#         except stripe.error.StripeError as e:
+#             return {'message': str(e)}, 400
+
+#         return {'checkout_url': checkout_session.url}, 201
+
 
 class SignUp(Resource):
     def post(self):
@@ -37,34 +63,29 @@ class SignUp(Resource):
         db.session.add(new_user)
         db.session.commit()
 
-        return jsonify({
-            "id": new_user.id,
-            "email": new_user.email,
-            "first_name": new_user.first_name,
-            "last_name": new_user.last_name,
-        })
+        return new_user.to_dict()
 
 class Login(Resource):
     def post(self):
-        data = request.get_json()
-        email = data.get['email']
-        password = data.get['password']
+        email = request.get_json().get('email')
+        password = request.get_json().get('password')
         user = User.query.filter(User.email == email).first()
 
-        if user is None:
-            return {'error': 'Invalid email'}, 404
-        if not bcrypt.check_password_hash(user._password_hash, password):
-            return {'error': 'Invalid password'}, 404
 
-        session.permanent = True
-        session['user_id'] = user.id
 
-        return jsonify({
-            "id": user.id,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-        })
+
+
+        # if user:
+        if user.authenticate(password):
+            session['user_id'] = user.id
+            session.permanent = True
+
+
+            return user.to_dict()
+        elif user is None:
+            return {'error': 'Invalid email or password'}, 404
+        else:
+            return {'error': 'Invalid email or password'}, 404
 
 class Logout(Resource):
     def delete(self):
@@ -181,12 +202,13 @@ class Orders(Resource):
         new_order = Order(
             user_id = data['user_id'],
             item_id = data['item_id'],
+            item_count = data['item_count'],
         )
 
         db.session.add(new_order)
         db.session.commit()
 
-        return make_response(new_order.to_dict(), 201)
+        return {'message': '201, a new ticket has been added!'}, 201
 
 class OrderByID(Resource):
     def get(self, id):
@@ -230,6 +252,7 @@ api.add_resource(Items, '/items', endpoint='items')
 api.add_resource(ItemByID, '/items/<int:id>')
 api.add_resource(Orders, '/orders', endpoint='orders')
 api.add_resource(OrderByID, '/orders/<int:id>')
+# api.add_resource(CreateCheckoutSession, '/create-checkout-session')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

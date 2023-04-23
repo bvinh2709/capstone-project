@@ -4,20 +4,27 @@ import { useDispatch, useSelector } from 'react-redux'
 import Food from "../../components/Food"
 import { setItems } from '../../state'
 
-function FoodMenu() {
+function FoodMenu({user}) {
 
     const dispatch = useDispatch()
     const [value, setValue] = useState("all")
     const items = useSelector((state) => state.cart.items)
     const isNonMobile = useMediaQuery('(min-width:600px)')
+    // console.log("items", items)
 
-    const [itemArray, setItemArray] = useState([])
+
+    async function getItems() {
+        const items = await fetch(
+            "/items",
+            {method: "GET"}
+        )
+
+        const itemsJson = await items.json()
+        dispatch(setItems(itemsJson))
+    }
 
     useEffect(() => {
-
-        fetch('http://localhost:5555/items')
-            .then(r => r.json())
-            .then(setItemArray)
+        getItems()
     }, [])
 
     const handleChange =  (event, newValue) => {
@@ -25,21 +32,21 @@ function FoodMenu() {
     }
 
 
-    const topRated = itemArray.filter(
+    const topRated = items.filter(
         (item) => item.category === "Top Rated"
     )
 
-    const newItem = itemArray.filter(
+    const newItem = items.filter(
         (item) => item.category === "New Dish"
     )
 
-    const bestItem = itemArray.filter(
+    const bestItem = items.filter(
         (item) => item.category === "Best Sellers"
     )
 
   return (
     <Box width="80%" margin="80px auto">
-        <Typography variant="h3" textAlign="">
+        <Typography variant="h3" textAlign="center">
             Our Featured <b>Burgers</b>
         </Typography>
         <Tabs
@@ -69,18 +76,14 @@ function FoodMenu() {
         rowGap="20px"
         columnGap="1.33%"
         >
-            {value === "all" && itemArray.map((item) => (
-                <Food key={item.id} image={item.image} name={item.name} description={item.description}
-                inStock={item.in_stock} price={item.price} id={item.id} category={item.category}/>))}
+            {value === "all" && items.map((item) => (
+                <Food key={item.id} item={item} user={user}/>))}
             {value === "newItem" && newItem.map((item) => (
-                <Food key={item.id} image={item.image} name={item.name} description={item.description}
-                inStock={item.in_stock} price={item.price} id={item.id} category={item.category}/>))}
+                <Food key={item.id} item={item} user={user}/>))}
             {value === "bestItem" && bestItem.map((item) => (
-                <Food key={item.id} image={item.image} name={item.name} description={item.description}
-                inStock={item.in_stock} price={item.price} id={item.id} category={item.category}/>))}
+                <Food key={item.id} item={item} user={user}/>))}
             {value === "topRated" && topRated.map((item) => (
-                <Food key={item.id} image={item.image} name={item.name} description={item.description}
-                inStock={item.in_stock} price={item.price} id={item.id} category={item.category}/>))}
+                <Food key={item.id} item={item} user={user}/>))}
         </Box>
     </Box>
   )

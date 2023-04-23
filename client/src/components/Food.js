@@ -7,7 +7,7 @@ import { shades } from '../theme'
 import { addToCart } from '../state'
 import { useNavigate } from 'react-router-dom'
 
-function Food({id, image, name, description, inStock, price, category}) {
+function Food({item, width, user}) {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -17,34 +17,56 @@ function Food({id, image, name, description, inStock, price, category}) {
         palette: { neutral },
     } = useTheme()
 
+    function handleAddToCart() {
+        dispatch(addToCart({ item: {...item, count}}))
+        fetch('/orders', {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                item_count: count,
+                user_id: user?.id,
+                item_id: item.id
+            }),
+        })
+        .then((r) => r.json())
+        console.log(item.id)
+        console.log(user.id)
+    }
+
     return (
-        <Box>
+        <Box width={width}>
             <Box
                 position="relative"
                 onMouseOver={()=> setIsHovered(true)}
-                onMouseLeave={()=> setIsHovered(false)}
+                onMouseOut={()=> setIsHovered(false)}
             >
                 <img
-                src={image} alt={name}
-                width="400px" height="400px"
-                onClick={()=> navigate(`/items/${id}`)}
-                style={{ cursor: 'pointer'}}
+                src={item.image} alt={item.name}
+                width="100%" height="400px"
+                onClick={()=> navigate(`/items/${item.id}`)}
+                style={{ cursor: 'pointer', objectFit: "cover",
+                backgroundAttachment: "fixed"}}
                 />
                 <Box
                     display={isHovered ? "block" : "none"}
+                    // display="block"
                     positon="absolute"
                     bottom="10%"
                     left='0'
                     width="100%"
                     padding="0 5%"
+
                 >
-                    <Box display="flex" justifyContent="space-between">
+                    <Box display="flex" justifyContent="space-between" >
                         {/* Amount */}
                         <Box
                         display="flex"
                         alignItems="center"
                         backgroundColor={shades.neutral[100]}
                         borderRadius="3px"
+
                         >
                             <IconButton
                                 onClick={()=>setCount(Math.max(count - 1, 1))}
@@ -60,19 +82,20 @@ function Food({id, image, name, description, inStock, price, category}) {
                         </Box>
                         {/* BUTTON */}
                         <Button
-                        // onClick={()=>dispatch(addToCart({ item: {...item, count}}))}
-                        onClick={()=>dispatch(addToCart({ item: {count}}))}
+                        onClick={handleAddToCart}
                         sx={{ backgroundColor: shades.primary[300], color: "white"}}
                         >
                         Add to Cart
                         </Button>
+
                     </Box>
                     </Box>
+
                 </Box>
                 <Box>
-                    <Typography variant="subtitle2" color={neutral.dark}>{category}</Typography>
-                    <Typography>{name}</Typography>
-                    <Typography fontWeight="bold">${price}</Typography>
+                    <Typography variant="subtitle2" color={neutral.dark}>{item.category}</Typography>
+                    <Typography>{item.name}</Typography>
+                    <Typography fontWeight="bold">${item.price}</Typography>
                 </Box>
         </Box>
     )

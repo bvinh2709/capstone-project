@@ -10,6 +10,8 @@ flask-migrate = "*"
 flask-cors = "*"
 flask-bcrypt = "*"
 sqlalchemy-serializer = "*"
+flask-session = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 

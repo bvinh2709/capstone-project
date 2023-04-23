@@ -65,7 +65,7 @@ function MainCarousel() {
                 alt={`carousel-${index}`}
                 style={{
                     width: "100%",
-                    height: "780px",
+                    height: "1200px",
                     objectFit: "cover",
                     backgroundAttachment: "fixed",
                 }}
@@ -82,7 +82,7 @@ function MainCarousel() {
                     right={isNonMobile ? undefined : "0"}
                     margin={isNonMobile ? undefined : "0 auto"}
                     maxWidth={isNonMobile ? undefined : "240px"}
-                    sx={{ '&:hover': {width: "100%"}}}
+                    // sx={{ '&:hover': {width: "100%"}}}
                 >
                     <Typography color={shades.secondary[200]}>--BEST BURGER SHOP IN TOWN--</Typography>
                     <Typography

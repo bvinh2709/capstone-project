@@ -1,11 +1,11 @@
 import React from 'react'
 
-function Checkout() {
+function Profile() {
   return (
     <div>
-      Checkout
+
     </div>
   )
 }
 
-export default Checkout
+export default Profile

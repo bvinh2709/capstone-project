@@ -58,6 +58,7 @@ class Order(db.Model, SerializerMixin):
     serialize_rules = ('-user.orders', '-user.items')
 
     id = db.Column(db.Integer, primary_key = True)
+    item_count = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'), nullable = False)
 
