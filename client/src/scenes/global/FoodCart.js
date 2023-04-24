@@ -22,12 +22,12 @@ const FlexBox = styled(Box)`
     align-items: center
 `
 
-function FoodCart({cartItems, totalCount, user, setCartItems}) {
+function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    const cart = useSelector((state) => state.cart.cart)
+    // const cart = useSelector((state) => state.cart.cart)
     const isCartOpen = useSelector((state) => state.cart.isCartOpen)
 
     const totalPrice = cartItems.reduce((total, item) => {
@@ -38,6 +38,18 @@ function FoodCart({cartItems, totalCount, user, setCartItems}) {
         fetch(`/clearcart`)
         setCartItems([])
     }
+
+    function handleDelete() {
+        cartItems.map((order) =>
+            fetch(`orders/${order.id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+            })
+            .then(r=> r.json())
+            .then(removeItem(order.id))
+    )
+    }
+
 
   return (
     <Box
@@ -92,7 +104,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems}) {
                                         <Typography fontWeight="bold">
                                         {order.item.name}
                                         </Typography>
-                                        <IconButton onClick={()=>dispatch(removeFromCart({ id: order.item.id}))}>
+                                        <IconButton onClick={()=>handleDelete(order.id)}>
                                             <CloseIcon />
                                         </IconButton>
                                     </FlexBox>

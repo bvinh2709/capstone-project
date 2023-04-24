@@ -59,6 +59,15 @@ function App() {
       setUser(null);
   }
 
+  function removeItem(doomedId) {
+    const newList = cartItems
+    .filter(order => order.user?.id === user?.id)
+    .filter(cartObj => {
+      return cartObj.id !== doomedId
+    })
+    setCartItems(newList)
+  }
+
   return (
     <div className="app">
       <BrowserRouter>
@@ -74,7 +83,7 @@ function App() {
           <Route path='/profile' element={<Profile />} />
           <Route path="*" element={<h1>404 Page Not Found</h1>} />
         </Routes>
-        <FoodCart setCartItems={setCartItems} cartItems={cartItems} totalCount={totalCount} user={user}/>
+        <FoodCart setCartItems={setCartItems} cartItems={cartItems} totalCount={totalCount} user={user} removeItem={removeItem}/>
         <Footer />
       </BrowserRouter>
     </div>
