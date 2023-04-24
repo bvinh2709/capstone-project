@@ -116,7 +116,7 @@ function FoodCart({cartItems, totalCount, user}) {
                     ))}
                 </Box>
                 ) : (
-                    <Box> Your cart is empty </Box>
+                    <Box> <IconButton onClick={()=> navigate('/login')}><Typography color={"blue"}>Sign In</Typography></IconButton> to see your Cart info</Box>
                 )
 }
                 {/* ACTIONS */}
@@ -131,9 +131,10 @@ function FoodCart({cartItems, totalCount, user}) {
                     }
                     </FlexBox>
                     <Button
+                    disabled="True"
                     sx={{
-                        backgroundColor: shades.primary[400],
-                        color: "white",
+                        backgroundColor: 'grey',
+                        color: shades.primary[500],
                         borderRadius: 0,
                         minWidth: '100%',
                         padding: "20px 40px",

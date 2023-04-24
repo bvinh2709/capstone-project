@@ -84,7 +84,7 @@ function MainCarousel() {
                     maxWidth={isNonMobile ? undefined : "240px"}
                     // sx={{ '&:hover': {width: "100%"}}}
                 >
-                    <Typography color={shades.secondary[200]}>--BEST BURGER SHOP IN TOWN--</Typography>
+                    <Typography color={shades.secondary[200]}>--BEST BURGERS IN TOWN--</Typography>
                     <Typography
                     variant="h1"
                     sx={{ '&:hover': {color: "yellow", transition: "3s", textDecoration: ""}}}
