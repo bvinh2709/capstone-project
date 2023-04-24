@@ -96,7 +96,7 @@ function App() {
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home user={user} addToState={addToState}/>} />
-          <Route path="items/:itemId" element={<ItemDetails user={user} addToState={addToState}/>} />
+          <Route path="items/:itemId" element={<ItemDetails cartItems={cartItems} user={user} addToState={addToState}/>} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<Confirmation />} />
           <Route path="/login" element={<Login handleLogin={handleLogin}/>} />

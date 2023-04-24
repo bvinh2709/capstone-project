@@ -1,22 +1,17 @@
 import React, {useState, useEffect} from 'react'
-import { useDispatch } from 'react-redux'
 import { IconButton, Box, Typography, Button, Tabs, Tab } from '@mui/material'
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
-import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined"
 import { shades } from '../../theme'
-import { addToCart } from '../../state'
 import { useParams } from 'react-router-dom'
-import Food from '../../components/Food'
+// import Food from '../../components/Food'
 
-function ItemDetails({user, addToState}) {
-
-  const dispatch = useDispatch()
+function ItemDetails({user, addToState, cartItems}) {
   const { itemId } = useParams()
   const [value, setValue] = useState("description")
   const [count, setCount] = useState(1)
   const [item, setItem] = useState(null)
-  const [items, setItems] = useState([])
+  // const [items, setItems] = useState([])
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -31,29 +26,30 @@ function ItemDetails({user, addToState}) {
     setItem(itemJson)
   }
 
-  async function getItems() {
-    const items = await fetch(
-        "http://localhost:5555/items",
-        {method: "GET"}
-    )
+//   async function getItems() {
+//     const items = await fetch(
+//         "http://localhost:5555/items",
+//         {method: "GET"}
+//     )
 
-    const itemsJson = await items.json()
-    setItems(itemsJson)
-}
+//     const itemsJson = await items.json()
+//     setItems(itemsJson)
+// }
 
-  const index = Math.floor(Math.random() * (items.length - 2))
+//   const index = Math.floor(Math.random() * (items.length - 2))
 
+  const something = [...cartItems].map((item) => item.item_id)
+  console.log(something)
 
 
   useEffect(() => {
     getItem()
-    getItems()
-  }, [itemId])
+    // getItems()
+  }, [])
 
   function handleAddToCart(e) {
     e.preventDefault()
     console.log('added to cart')
-    // dispatch(addToCart({ item: {...item, count}}))
     fetch('/orders', {
         method: "POST",
         headers: {
@@ -158,7 +154,7 @@ function ItemDetails({user, addToState}) {
           <div>{item?.description}</div>
         )}
       </Box>
-      <Box mt="50px" width="100%">
+      {/* <Box mt="50px" width="100%">
         <Typography variant="h3" fontWeight="bold">
           Related Items
         </Typography>
@@ -174,7 +170,7 @@ function ItemDetails({user, addToState}) {
             <Food key={item.id} item={item} user={user} addToState={addToState}/>
           ))}
         </Box>
-      </Box>
+      </Box> */}
     </Box>
   )
 }

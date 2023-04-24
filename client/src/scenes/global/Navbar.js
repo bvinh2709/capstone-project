@@ -9,7 +9,7 @@ import {
   LocalBarOutlined,
   LogoutOutlined,
   PermIdentityOutlined,
-  SettingsOutlined
+  NoAccountsOutlined,
 } from '@mui/icons-material'
 
 import { useNavigate } from "react-router-dom"
@@ -36,6 +36,13 @@ function Navbar({user, setUser, onLogout, totalCount}) {
     onLogout()
     navigate('/login')
   }
+
+  const handleDelete = () => {
+    fetch(`users/${user.id}`,{
+    method: 'DELETE'
+    })
+    handleLogout()
+}
 
   return (
     <Box
@@ -112,9 +119,9 @@ function Navbar({user, setUser, onLogout, totalCount}) {
                     </Button>
                   </MenuItem>
                   <MenuItem onClick={handleClose} sx={{ color: 'white' }}>
-                  <Button>
-                      Settings
-                      <SettingsOutlined />
+                  <Button onClick={handleDelete}>
+                      Deactivate
+                      <NoAccountsOutlined />
                     </Button>
                   </MenuItem>
                   <MenuItem onClick={handleClose} sx={{ color: 'white' }}>

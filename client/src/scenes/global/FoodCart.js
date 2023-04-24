@@ -1,14 +1,14 @@
-import React, {useState} from 'react'
+import React from 'react'
 import { Box, Button, Divider, IconButton, Typography } from '@mui/material'
 import { useSelector, useDispatch } from 'react-redux'
 import CloseIcon from "@mui/icons-material/Close"
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
+import CancelPresentationIcon from "@mui/icons-material/CancelPresentation"
 import styled from '@emotion/styled'
 import {shades} from "../../theme"
 
 import {
-    decreaseCount,
     setIsCartOpen,
 } from "../../state"
 
@@ -24,7 +24,6 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const [cartCount, setCartCount] = useState(1)
 
     // const cart = useSelector((state) => state.cart.cart)
     const isCartOpen = useSelector((state) => state.cart.isCartOpen)
@@ -57,7 +56,6 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
             .then(r => r.json())
             .then(data => {
                 countItemCount(data)
-                setCartCount(newCount);
             })
 
         }
@@ -76,7 +74,6 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
               .then(r => r.json())
               .then(data => {
                 countItemCount(data)
-                setCartCount(newCount);
               });
         } else if (item_count === 1) {
             handleDelete(id)
@@ -113,7 +110,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
                     ) : (
                         <Typography variant="h3">your order (0)</Typography>
                     )}
-                    <IconButton onClick={()=>dispatch(setIsCartOpen({}))}>
+                    <IconButton sx={{backgroundColor: "black", color: "white"}} onClick={()=>dispatch(setIsCartOpen({}))}>
                         <CloseIcon />
                     </IconButton>
                 </Box>
@@ -138,7 +135,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
                                         {index+1}. {order.item.name}
                                         </Typography>
                                         <IconButton onClick={()=>handleDelete(order.id)}>
-                                            <CloseIcon />
+                                            <CancelPresentationIcon />
                                         </IconButton>
                                     </FlexBox>
                                     <Typography>{order.item.description}</Typography>
@@ -158,7 +155,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
                                         </Box>
                                         {/* PRICE */}
                                         <Typography fontWeight="bold">
-                                            {order.item_count} X ${order.item.price}
+                                            {order.item_count} x ${order.item.price}
                                         </Typography>
                                     </FlexBox>
                                 </Box>
