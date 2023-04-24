@@ -239,6 +239,14 @@ class OrderByID(Resource):
 
             return make_response({'message': 'This order has been settled!'}, 204)
 
+class ClearCart(Resource):
+    def get(self):
+        user_id = session['user_id']
+        db.session.query(Order).filter(Order.user_id == user_id).delete()
+        db.session.commit()
+
+        return {'message': 'cart is clear'}, 200
+
 
 api.add_resource(HomePage, '/', endpoint='home-page')
 api.add_resource(SignUp, '/signup', endpoint='signup')
@@ -252,6 +260,7 @@ api.add_resource(Items, '/items', endpoint='items')
 api.add_resource(ItemByID, '/items/<int:id>')
 api.add_resource(Orders, '/orders', endpoint='orders')
 api.add_resource(OrderByID, '/orders/<int:id>')
+api.add_resource(ClearCart, '/clearcart', endpoint='clearcart')
 # api.add_resource(CreateCheckoutSession, '/create-checkout-session')
 
 if __name__ == '__main__':

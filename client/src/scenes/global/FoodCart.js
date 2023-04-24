@@ -22,7 +22,7 @@ const FlexBox = styled(Box)`
     align-items: center
 `
 
-function FoodCart({cartItems, totalCount, user}) {
+function FoodCart({cartItems, totalCount, user, setCartItems}) {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -33,6 +33,11 @@ function FoodCart({cartItems, totalCount, user}) {
     const totalPrice = cartItems.reduce((total, item) => {
         return total + item.item_count * item.item.price
     }, 0)
+
+    function handleClearCart() {
+        fetch(`/clearcart`)
+        setCartItems([])
+    }
 
   return (
     <Box
@@ -70,43 +75,45 @@ function FoodCart({cartItems, totalCount, user}) {
                 {/* Cart List */}
                 {user ? (
                 <Box>
-                {cart.map((item) => (
-                        <Box key={`${item.name}-${item.id}`}>
+                {cartItems
+                .filter(order => order.user?.id === user?.id)
+                .map((order) => (
+                        <Box key={order.item.id}>
                             <FlexBox p="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                 <Box flex="1 1 40%">
                                     <img
-                                    alt={item.name}
+                                    alt={order.item.name}
                                     width="123px"
                                     height="164px"
-                                    src={item.image} />
+                                    src={order.item.image} />
                                 </Box>
                                 <Box flex="1 1 60%">
                                     <FlexBox mb="5px" display="flex" justifyContent= "space-between" alignItems="center">
                                         <Typography fontWeight="bold">
-                                            {item.name}
+                                        {order.item.name}
                                         </Typography>
-                                        <IconButton onClick={()=>dispatch(removeFromCart({ id: item.id}))}>
+                                        <IconButton onClick={()=>dispatch(removeFromCart({ id: order.item.id}))}>
                                             <CloseIcon />
                                         </IconButton>
                                     </FlexBox>
-                                    <Typography>{item.description}</Typography>
+                                    <Typography>{order.item.description}</Typography>
                                     <FlexBox m="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                         <Box display="flex" alignItems="center" border={`1.5px solid ${shades.neutral[500]}`}>
                                             <IconButton
-                                                onClick={()=>dispatch(decreaseCount({id: item.id}))}
+                                                onClick={()=>dispatch(decreaseCount({id: order.item.id}))}
                                             >
                                                 <RemoveIcon />
                                             </IconButton>
-                                            <Typography>{item.count}</Typography>
+                                            <Typography>{order.item_count}</Typography>
                                             <IconButton
-                                                onClick={()=>dispatch(increaseCount({id: item.id}))}
+                                                onClick={()=>dispatch(increaseCount({id: order.item.id}))}
                                             >
                                                 <AddIcon />
                                             </IconButton>
                                         </Box>
                                         {/* PRICE */}
                                         <Typography fontWeight="bold">
-                                            ${item.price}
+                                            {order.item_count} X ${order.item.price}
                                         </Typography>
                                     </FlexBox>
                                 </Box>
@@ -119,6 +126,20 @@ function FoodCart({cartItems, totalCount, user}) {
                         <Typography fontWeight="bold">SUBTOTAL</Typography>
                         <Typography fontWeight="bold">${totalPrice}</Typography>
                     </FlexBox>
+                    <Button
+                    sx={{
+                        backgroundColor: "red",
+                        color: "white",
+                        borderRadius: 0,
+                        minWidth: '100%',
+                        padding: "20px 40px",
+                        margin: "20px 0",
+                    }}
+                    onClick={handleClearCart}
+                    >
+                        CLEAR CART
+                    </Button>
+
                     <Button
                     sx={{
                         backgroundColor: shades.primary[400],
@@ -141,13 +162,17 @@ function FoodCart({cartItems, totalCount, user}) {
 
                 ) : (
                 <Box>
-                <Box> <IconButton onClick={()=> navigate('/login')}><Typography color={"blue"}>Sign In</Typography></IconButton> to see your Cart info</Box>
+                <Box>
+                    <IconButton onClick={()=> navigate('/login')}><Typography color={"blue"}>Sign In</Typography></IconButton> to see your Cart info
+                </Box>
+                <Box>
+                    <Typography>OR</Typography>
+                </Box>
+                <Box>
+                    <IconButton onClick={()=> navigate('/signup')}><Typography color={"blue"}>Sign Up</Typography></IconButton> to create a New Account
+                </Box>
 
                 <Box m="20px 0">
-                    <FlexBox m="20px 0" display="flex" justifyContent= "space-between" alignItems="center">
-                        <Typography fontWeight="bold">SUBTOTAL</Typography>
-                        <Typography fontWeight="bold">$0</Typography>
-                    </FlexBox>
                     <Button
                     disabled="True"
                     sx={{

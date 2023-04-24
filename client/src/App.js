@@ -74,7 +74,7 @@ function App() {
           <Route path='/profile' element={<Profile />} />
           <Route path="*" element={<h1>404 Page Not Found</h1>} />
         </Routes>
-        <FoodCart cartItems={cartItems} totalCount={totalCount} user={user}/>
+        <FoodCart setCartItems={setCartItems} cartItems={cartItems} totalCount={totalCount} user={user}/>
         <Footer />
       </BrowserRouter>
     </div>
