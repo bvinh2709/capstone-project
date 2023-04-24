@@ -1,12 +1,9 @@
 from flask import Flask, make_response, jsonify, request, session
 from flask_restful import Resource, reqparse
-# import stripe
+import stripe
+import json
 from config import app, db, api, bcrypt
 from models import User, Item, Order
-
-# stripe.api_key = 'sk_test_51MzBCeHMeLOzkmO2brW3gQ3hOO9P9tOSTK9u5p6uZgQdngTeOT76iCtUbN3zQ8R3NneVuIbVQaoVmEs7JNPIaFl800L0j5ysWq'
-
-# YOUR_DOMAIN = 'http://localhost:5555'
 
 class HomePage(Resource):
     def get(self):
@@ -247,7 +244,37 @@ class ClearCart(Resource):
 
         return {'message': 'cart is clear'}, 200
 
+stripe.api_key = 'sk_test_51MzBCeHMeLOzkmO2brW3gQ3hOO9P9tOSTK9u5p6uZgQdngTeOT76iCtUbN3zQ8R3NneVuIbVQaoVmEs7JNPIaFl800L0j5ysWq'
 
+def calculate_order_amount(items):
+    user_id = session['user_id']
+    items = []
+    if user_id:
+        item_count_list = [order.item_count for order in Order.query.filter(Order.user_id == user_id).all()]
+        price_list = [order.item.price for order in Order.query.filter(Order.user_id == user_id).all()]
+        items = list(map(lambda x,y: x * y, item_count_list, price_list))
+        return items
+    return sum(items) * 100
+
+class CreatePayment(Resource):
+    def post(self):
+        try:
+            data = json.loads(request.data)
+            # Create a PaymentIntent with the order amount and currency
+            intent = stripe.PaymentIntent.create(
+                amount=calculate_order_amount(data['items']),
+                currency='usd',
+                automatic_payment_methods={
+                    'enabled': True,
+                },
+            )
+            return jsonify({
+                'clientSecret': intent['client_secret']
+            })
+        except Exception as e:
+            return jsonify(error=str(e)), 403
+
+api.add_resource(CreatePayment, '/create-payment-intent')
 api.add_resource(HomePage, '/', endpoint='home-page')
 api.add_resource(SignUp, '/signup', endpoint='signup')
 api.add_resource(Login, '/login', endpoint='login')
