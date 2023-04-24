@@ -8,7 +8,6 @@ import styled from '@emotion/styled'
 import {shades} from "../../theme"
 
 import {
-    removeFromCart,
     increaseCount,
     decreaseCount,
     setIsCartOpen,
@@ -22,17 +21,39 @@ const FlexBox = styled(Box)`
     align-items: center
 `
 
-function FoodCart({cartItems, totalCount, user}) {
+function FoodCart({order, totalCount, user, totalPrice, setCartItems, removeItem}) {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    const cart = useSelector((state) => state.cart.cart)
+    // const cart = useSelector((state) => state.cart.cart)
     const isCartOpen = useSelector((state) => state.cart.isCartOpen)
 
-    const totalPrice = cartItems.reduce((total, item) => {
-        return total + item.item_count * item.item.price
-    }, 0)
+    function handleDelete() {
+        removeItem(order.id)
+        fetch(`orders/${order.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    // function addQuantity(id) {
+    //     // const newLikes = apparelLikes + 1;
+
+    //     fetch(`orders/${id}`, {
+    //       method: 'PATCH',
+    //       headers: { 'Content-Type': 'application/json' },
+    //       body: JSON.stringify({ item_count: item_count + 1 })
+    //     })
+    //       .then(r => r.json())
+    //       .then(data => {
+    //         countLikes(data);
+
+    //       });
+    //   }
+    function handleClearCart() {
+        fetch(`/clearcart`)
+    }
 
   return (
     <Box
@@ -70,50 +91,51 @@ function FoodCart({cartItems, totalCount, user}) {
                 {/* Cart List */}
                 {user ? (
                 <Box>
-                {cart.map((item) => (
-                        <Box key={`${item.name}-${item.id}`}>
+
+                        <Box key={order.item.id}>
                             <FlexBox p="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                 <Box flex="1 1 40%">
                                     <img
-                                    alt={item.name}
+                                    alt={order.item.name}
                                     width="123px"
                                     height="164px"
-                                    src={item.image} />
+                                    src={order.item.image} />
                                 </Box>
                                 <Box flex="1 1 60%">
                                     <FlexBox mb="5px" display="flex" justifyContent= "space-between" alignItems="center">
                                         <Typography fontWeight="bold">
-                                            {item.name}
+                                            {order.item.name}
                                         </Typography>
-                                        <IconButton onClick={()=>dispatch(removeFromCart({ id: item.id}))}>
+                                        <IconButton onClick={()=> handleDelete(order.id)}>
+                                        {/* <IconButton> */}
                                             <CloseIcon />
                                         </IconButton>
                                     </FlexBox>
-                                    <Typography>{item.description}</Typography>
+                                    <Typography>{order.item.description}</Typography>
                                     <FlexBox m="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                         <Box display="flex" alignItems="center" border={`1.5px solid ${shades.neutral[500]}`}>
                                             <IconButton
-                                                onClick={()=>dispatch(decreaseCount({id: item.id}))}
+                                                onClick={()=>dispatch(decreaseCount({id: order.id}))}
                                             >
                                                 <RemoveIcon />
                                             </IconButton>
-                                            <Typography>{item.count}</Typography>
+                                            <Typography>{order.item_count}</Typography>
                                             <IconButton
-                                                onClick={()=>dispatch(increaseCount({id: item.id}))}
+                                                onClick={()=>dispatch(increaseCount({id: order.id}))}
                                             >
                                                 <AddIcon />
                                             </IconButton>
                                         </Box>
                                         {/* PRICE */}
                                         <Typography fontWeight="bold">
-                                            ${item.price}
+                                            ${order.item.price}
                                         </Typography>
                                     </FlexBox>
                                 </Box>
                             </FlexBox>
                             <Divider />
                         </Box>
-                    ))}
+
                 </Box>
                 ) : (
                     <Box> Your cart is empty </Box>
@@ -132,12 +154,25 @@ function FoodCart({cartItems, totalCount, user}) {
                     </FlexBox>
                     <Button
                     sx={{
-                        backgroundColor: shades.primary[400],
+                        backgroundColor: "red",
                         color: "white",
                         borderRadius: 0,
                         minWidth: '100%',
                         padding: "20px 40px",
                         margin: "20px 0",
+                    }}
+                    onClick={handleClearCart}
+                    >
+                        CLEAR CART
+                    </Button>
+                    <Button
+                    sx={{
+                        backgroundColor: shades.primary[400],
+                        color: "white",
+                        borderRadius: 0,
+                        minWidth: '100%',
+                        padding: "20px 40px",
+                        margin: "0",
                     }}
                     onClick={()=> {
                         navigate('/checkout')

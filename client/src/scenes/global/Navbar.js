@@ -1,4 +1,4 @@
-import { useDispatch, useSelector } from "react-redux"
+import { useDispatch} from "react-redux"
 import { Badge, Box, IconButton, Menu, MenuItem, Button} from "@mui/material"
 import {
   PersonOutline,
@@ -15,13 +15,18 @@ import {
 import { useNavigate } from "react-router-dom"
 // import {shades} from "../../theme"
 import { setIsCartOpen } from "../../state"
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 
 function Navbar({user, setUser, onLogout, totalCount}) {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [badgeCount, setBadgeCount] = useState(0)
   // const cart = useSelector((state) => state.cart.cart)
   const [anchorEl, setAnchorEl] = useState(null);
+
+  useEffect(()=>{
+    setBadgeCount(totalCount)
+  }, [])
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -133,9 +138,9 @@ function Navbar({user, setUser, onLogout, totalCount}) {
             )}
             {user ? (
               <Badge
-                  badgeContent={totalCount}
+                  badgeContent={badgeCount}
                   color="secondary"
-                  invisible={totalCount === 0}
+                  invisible={badgeCount === 0}
                   sx={{
                   "& .MuiBadge-badge": {
                       right: 5,
@@ -156,9 +161,9 @@ function Navbar({user, setUser, onLogout, totalCount}) {
               </Badge>
             ) : (
               <Badge
-                  badgeContent={0}
+                  badgeContent={badgeCount}
                   color="secondary"
-                  invisible={totalCount === 0}
+                  invisible={badgeCount === 0}
                   sx={{
                   "& .MuiBadge-badge": {
                       right: 5,

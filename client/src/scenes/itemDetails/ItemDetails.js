@@ -5,13 +5,13 @@ import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined"
 import { shades } from '../../theme'
-import { addToCart } from '../../state'
+// import { addToCart } from '../../state'
 import { useParams } from 'react-router-dom'
 import Food from '../../components/Food'
 
-function ItemDetails({user}) {
+function ItemDetails({user, addToState}) {
 
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
   const { itemId } = useParams()
   const [value, setValue] = useState("description")
   const [count, setCount] = useState(1)
@@ -50,8 +50,26 @@ function ItemDetails({user}) {
     getItems()
   }, [itemId])
 
+
+  // function addToCart(){
+  //   const cartItem ={
+  //     image: image,
+  //     description: description,
+  //     gender: gender,
+  //     price: price,
+  //     category: category
+  //   }
+  //   fetch("http://localhost:3000/cart", {
+  //     method: 'POST',
+  //     headers: {"Content-Type": "application/json"},
+  //     body: JSON.stringify(cartItem)
+  //   })
+
+  // }
+
   function handleAddToCart() {
-    dispatch(addToCart({ item: {...item, count}}))
+    // dispatch(addToCart({ item: {...item, count}}))
+
     fetch('/orders', {
         method: "POST",
         headers: {
@@ -64,8 +82,7 @@ function ItemDetails({user}) {
         }),
     })
     .then((r) => r.json())
-    console.log(item.id)
-    console.log(user.id)
+    .then(cartItem=> addToState(cartItem))
 }
 
   // function handleAddSameItem() {
@@ -158,7 +175,7 @@ function ItemDetails({user}) {
           justifyContent="space-between"
         >
           {items.slice(index, index + 3).map((item) => (
-            <Food key={item.id} item={item} user={user}/>
+            <Food key={item.id} item={item} user={user} addToState={addToState}/>
           ))}
         </Box>
       </Box>

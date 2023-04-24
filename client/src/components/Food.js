@@ -1,24 +1,22 @@
 import React, {useState} from 'react'
-import { useDispatch } from 'react-redux'
 import { IconButton, Box, Typography, useTheme, Button } from '@mui/material'
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
 import { shades } from '../theme'
-import { addToCart } from '../state'
 import { useNavigate } from 'react-router-dom'
 
-function Food({item, width, user}) {
+function Food({item, width, user, addToState}) {
 
     const navigate = useNavigate()
-    const dispatch = useDispatch()
     const [count, setCount] = useState(1)
     const [isHovered, setIsHovered] = useState(false)
+
     const {
         palette: { neutral },
     } = useTheme()
 
-    function handleAddToCart() {
-        dispatch(addToCart({ item: {...item, count}}))
+    function handleAddToCart(e) {
+        e.preventDefault()
         fetch('/orders', {
             method: "POST",
             headers: {
@@ -31,8 +29,9 @@ function Food({item, width, user}) {
             }),
         })
         .then((r) => r.json())
-        console.log(item.id)
-        console.log(user.id)
+        .then(data=> {
+            addToState(data)
+        })
     }
 
     return (
@@ -82,6 +81,7 @@ function Food({item, width, user}) {
                         </Box>
                         {/* BUTTON */}
                         <Button
+                        type="submit"
                         onClick={handleAddToCart}
                         sx={{ backgroundColor: shades.primary[300], color: "white"}}
                         >

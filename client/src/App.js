@@ -33,6 +33,7 @@ function App() {
   const [user, setUser] = useState(null)
   const [cartItems, setCartItems] = useState([])
 
+
   useEffect(() => {
     fetch("/check_session")
     .then((response) => {
@@ -42,14 +43,18 @@ function App() {
           // console.log(user))
       }
   });
-    fetch('/orders')
-        .then(r => r.json())
-        .then(data => setCartItems(data))
   }, [])
 
-  const totalCount = cartItems.reduce((total, item) => {
-    return total + item.item_count
-  }, 0)
+  useEffect(()=>{
+    fetch('/orders')
+    .then(r => r.json())
+    .then((data)=> {
+      setCartItems(data)
+      })
+
+  }, [])
+
+
 
   function handleLogin(user) {
     setUser(user);
@@ -59,14 +64,42 @@ function App() {
       setUser(null);
   }
 
+  // function handleCount() {
+  //   setCount(totalCount)
+  // }
+  function addToState(cartObj){
+    setCartItems([cartObj, ...cartItems])
+  }
+
+  const totalCount = cartItems
+  .filter(order => order.user?.id === user?.id)
+  .reduce((total, item) => {
+    return total + item.item_count
+  }, 0)
+
+  const totalPrice = cartItems
+    .filter(order => order.user?.id === user?.id)
+    .reduce((total, item) => {
+        return total + item.item_count * item.item.price
+    }, 0)
+
+    function removeItem(doomedId) {
+      const newList = cartItems
+      .filter(order => order.user?.id === user?.id)
+      .filter(cartObj => {
+        return cartObj.id !== doomedId
+      })
+      setCartItems(newList)
+  }
+
   return (
     <div className="app">
       <BrowserRouter>
-        <Navbar user={user} setUser={setUser} onLogout={handleLogout} totalCount={totalCount}/>
+        <Navbar user={user} setUser={setUser} onLogout={handleLogout} totalCount={totalCount} />
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<Home user={user}/>} />
-          <Route path="items/:itemId" element={<ItemDetails user={user}/>} />
+          <Route path="/" element={<Home user={user} addToState={addToState}/>} />
+          <Route path="items/:itemId" element={<ItemDetails user={user} addToState={addToState}/>} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<Confirmation />} />
           <Route path="/login" element={<Login handleLogin={handleLogin}/>} />
@@ -74,7 +107,13 @@ function App() {
           <Route path='/profile' element={<Profile />} />
           <Route path="*" element={<h1>404 Page Not Found</h1>} />
         </Routes>
-        <FoodCart cartItems={cartItems} totalCount={totalCount} user={user}/>
+        {cartItems
+        .filter(order => order.user?.id === user?.id)
+        .map((item) => (
+          <FoodCart
+          key={item.id} order={item} removeItem={removeItem}
+          setCartItems={setCartItems} totalCount={totalCount} user={user} totalPrice={totalPrice}/>
+        ))}
         <Footer />
       </BrowserRouter>
     </div>
