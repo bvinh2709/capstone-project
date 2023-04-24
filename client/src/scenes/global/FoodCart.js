@@ -84,8 +84,8 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
                 {user ? (
                 <Box>
                 {cartItems
-                .filter(order => order.user?.id === user?.id)
-                .map((order) => (
+                    .filter(order => order.user?.id === user?.id)
+                    .map((order, index) => (
                         <Box key={order.item.id}>
                             <FlexBox p="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                 <Box flex="1 1 40%">
@@ -98,7 +98,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
                                 <Box flex="1 1 60%">
                                     <FlexBox mb="5px" display="flex" justifyContent= "space-between" alignItems="center">
                                         <Typography fontWeight="bold">
-                                        {order.item.name}
+                                        {index+1}. {order.item.name}
                                         </Typography>
                                         <IconButton onClick={()=>handleDelete(order.id)}>
                                             <CloseIcon />

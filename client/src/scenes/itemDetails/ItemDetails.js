@@ -50,9 +50,11 @@ function ItemDetails({user, addToState}) {
     getItems()
   }, [itemId])
 
-  function handleAddToCart() {
+  function handleAddToCart(e) {
+    e.preventDefault()
+    console.log('added to cart')
     // dispatch(addToCart({ item: {...item, count}}))
-    fetch('http://locahost:5555/orders', {
+    fetch('/orders', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,10 +65,21 @@ function ItemDetails({user, addToState}) {
             item_id: item.id
         }),
     })
-    .then((r) => r.json())
-    .then(addToState())
-}
+    .then((r) => {
+      if (r.ok) {
+        r.json().then( newObj => {
+          console.log(newObj)
+          addToState(newObj)
 
+        })
+      } else {
+        alert('POST didnt work')
+      }
+    })
+}
+// if (response.ok) {
+//   response.json().then((user) =>
+//   setUser(user));
   // function handleAddSameItem() {
   //   setCount(count + 1)
   // }

@@ -32,6 +32,10 @@ function App() {
 
   const [user, setUser] = useState(null)
   const [cartItems, setCartItems] = useState([])
+  
+  function addToState(cartObj){
+    setCartItems(prevCartItems => [...prevCartItems, cartObj])
+  }
 
   useEffect(() => {
     fetch("/check_session")
@@ -72,10 +76,6 @@ function App() {
     setCartItems(newList)
   }
 
-  function addToState(cartObj){
-    const newCartArray = [...cartItems, cartObj]
-    setCartItems(newCartArray)
-  }
 
   return (
     <div className="app">

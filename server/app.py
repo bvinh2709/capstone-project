@@ -208,7 +208,7 @@ class Orders(Resource):
         db.session.add(new_order)
         db.session.commit()
 
-        return {'message': '201, a new ticket has been added!'}, 201
+        return make_response(new_order.to_dict(), 201)
 
 class OrderByID(Resource):
     def get(self, id):

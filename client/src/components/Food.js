@@ -18,7 +18,7 @@ function Food({item, width, user}) {
     } = useTheme()
 
     function handleAddToCart() {
-        dispatch(addToCart({ item: {...item, count}}))
+        // dispatch(addToCart({ item: {...item, count}}))
         fetch('/orders', {
             method: "POST",
             headers: {
@@ -31,6 +31,7 @@ function Food({item, width, user}) {
             }),
         })
         .then((r) => r.json())
+        // .then(newObj=>addToState(newObj))
         console.log(item.id)
         console.log(user.id)
     }
