@@ -32,6 +32,7 @@ function App() {
 
   const [user, setUser] = useState(null)
   const [cartItems, setCartItems] = useState([])
+  
 
   function addToState(cartObj){
     setCartItems(prevCartItems => [...prevCartItems, cartObj])
