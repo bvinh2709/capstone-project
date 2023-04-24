@@ -8,7 +8,6 @@ import styled from '@emotion/styled'
 import {shades} from "../../theme"
 
 import {
-    increaseCount,
     decreaseCount,
     setIsCartOpen,
 } from "../../state"
@@ -21,7 +20,7 @@ const FlexBox = styled(Box)`
     align-items: center
 `
 
-function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
+function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countItemCount}) {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -30,7 +29,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
     // const cart = useSelector((state) => state.cart.cart)
     const isCartOpen = useSelector((state) => state.cart.isCartOpen)
 
-    const totalPrice = cartItems.reduce((total, item) => {
+    const totalPrice = cartItems.filter(order => order.user?.id === user?.id).reduce((total, item) => {
         return total + item.item_count * item.item.price
     }, 0)
 
@@ -47,19 +46,41 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
             })
     }
 
-    function plusQuantity(id) {
+    function plusQuantity(id, item_count) {
         console.log('added 1')
-        const newCount = cartCount + 1;
-
+        const newCount = item_count + 1
         fetch(`http://localhost:5555/orders/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ item_count: newCount })
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_count: newCount})
         })
-          .then(r => r.json())
-          .then(data => {
-            setCartCount(newCount);
-          });
+            .then(r => r.json())
+            .then(data => {
+                countItemCount(data)
+                setCartCount(newCount);
+            })
+
+        }
+
+
+
+      function minusQuantity(id, item_count) {
+        console.log('minus 1')
+        if (item_count > 1) {
+            const newCount = item_count - 1;
+            fetch(`http://localhost:5555/orders/${id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ item_count: newCount })
+            })
+              .then(r => r.json())
+              .then(data => {
+                countItemCount(data)
+                setCartCount(newCount);
+              });
+        } else if (item_count === 1) {
+            handleDelete(id)
+        }
       }
 
 
@@ -124,13 +145,13 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
                                     <FlexBox m="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                         <Box display="flex" alignItems="center" border={`1.5px solid ${shades.neutral[500]}`}>
                                             <IconButton
-                                                onClick={()=>dispatch(decreaseCount({id: order.item.id}))}
+                                                onClick={()=>minusQuantity(order.id, order.item_count)}
                                             >
                                                 <RemoveIcon />
                                             </IconButton>
                                             <Typography>{order.item_count}</Typography>
                                             <IconButton
-                                                onClick={()=>plusQuantity(order.id)}
+                                                onClick={()=>plusQuantity(order.id, order.item_count)}
                                             >
                                                 <AddIcon />
                                             </IconButton>

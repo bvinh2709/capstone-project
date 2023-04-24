@@ -32,7 +32,7 @@ function App() {
 
   const [user, setUser] = useState(null)
   const [cartItems, setCartItems] = useState([])
-  
+
 
   function addToState(cartObj){
     setCartItems(prevCartItems => [...prevCartItems, cartObj])
@@ -56,7 +56,7 @@ function App() {
     .then(data => setCartItems(data))
   }, [])
 
-  const totalCount = cartItems.reduce((total, item) => {
+  const totalCount = cartItems.filter(order => order.user?.id === user?.id).reduce((total, item) => {
     return total + item.item_count
   }, 0)
 
@@ -77,6 +77,17 @@ function App() {
     setCartItems(newList)
   }
 
+  function countItemCount (cartObj){
+    const itemCounted = [...cartItems].map(itemObj => {
+      if(itemObj.id === cartObj.id){
+        return cartObj
+      }else{
+        return itemObj
+      }
+    })
+    setCartItems(itemCounted)
+  }
+
 
   return (
     <div className="app">
@@ -95,7 +106,7 @@ function App() {
         </Routes>
         <FoodCart setCartItems={setCartItems}
         cartItems={cartItems} totalCount={totalCount}
-        user={user} removeItem={removeItem}
+        user={user} removeItem={removeItem} countItemCount={countItemCount}
         />
         <Footer />
       </BrowserRouter>
