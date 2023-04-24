@@ -163,6 +163,7 @@ function ItemDetails({user, addToState}) {
           Related Items
         </Typography>
         <Box
+          maxWidth="100%"
           mt="20px"
           display="flex"
           flexWrap="wrap"

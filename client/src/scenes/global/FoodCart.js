@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Box, Button, Divider, IconButton, Typography } from '@mui/material'
 import { useSelector, useDispatch } from 'react-redux'
 import CloseIcon from "@mui/icons-material/Close"
@@ -25,6 +25,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
+    const [cartCount, setCartCount] = useState(1)
 
     // const cart = useSelector((state) => state.cart.cart)
     const isCartOpen = useSelector((state) => state.cart.isCartOpen)
@@ -45,6 +46,21 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
             headers: { 'Content-Type': 'application/json' }
             })
     }
+
+    function plusQuantity(id) {
+        console.log('added 1')
+        const newCount = cartCount + 1;
+
+        fetch(`http://localhost:5555/orders/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item_count: newCount })
+        })
+          .then(r => r.json())
+          .then(data => {
+            setCartCount(newCount);
+          });
+      }
 
 
   return (
@@ -114,7 +130,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
                                             </IconButton>
                                             <Typography>{order.item_count}</Typography>
                                             <IconButton
-                                                onClick={()=>dispatch(increaseCount({id: order.item.id}))}
+                                                onClick={()=>plusQuantity(order.id)}
                                             >
                                                 <AddIcon />
                                             </IconButton>
