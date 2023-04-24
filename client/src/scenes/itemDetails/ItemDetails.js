@@ -64,7 +64,7 @@ function ItemDetails({user, addToState}) {
         }),
     })
     .then((r) => r.json())
-    .then(newData => addToState(newData))
+    .then(addToState())
 }
 
   // function handleAddSameItem() {

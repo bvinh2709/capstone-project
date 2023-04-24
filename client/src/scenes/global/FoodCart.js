@@ -38,15 +38,12 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
         setCartItems([])
     }
 
-    function handleDelete() {
-        cartItems.map((order) =>
-            fetch(`http://localhost:5555/orders/${order.id}`, {
+    function handleDelete(id) {
+            (removeItem(id))
+            fetch(`http://localhost:5555/orders/${id}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' }
             })
-            .then(r=> r.json())
-            .then(removeItem(order.id))
-    )
     }
 
 
