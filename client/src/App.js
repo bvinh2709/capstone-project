@@ -42,9 +42,13 @@ function App() {
           // console.log(user))
       }
   });
-    fetch('/orders')
-        .then(r => r.json())
-        .then(data => setCartItems(data))
+
+  }, [])
+
+  useEffect(()=> {
+    fetch('http://localhost:5555/orders')
+    .then(r => r.json())
+    .then(data => setCartItems(data))
   }, [])
 
   const totalCount = cartItems.reduce((total, item) => {
@@ -68,6 +72,11 @@ function App() {
     setCartItems(newList)
   }
 
+  function addToState(cartObj){
+    const newCartArray = [...cartItems, cartObj]
+    setCartItems(newCartArray)
+  }
+
   return (
     <div className="app">
       <BrowserRouter>
@@ -75,7 +84,7 @@ function App() {
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home user={user}/>} />
-          <Route path="items/:itemId" element={<ItemDetails user={user}/>} />
+          <Route path="items/:itemId" element={<ItemDetails user={user} addToState={addToState}/>} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<Confirmation />} />
           <Route path="/login" element={<Login handleLogin={handleLogin}/>} />
@@ -83,7 +92,10 @@ function App() {
           <Route path='/profile' element={<Profile />} />
           <Route path="*" element={<h1>404 Page Not Found</h1>} />
         </Routes>
-        <FoodCart setCartItems={setCartItems} cartItems={cartItems} totalCount={totalCount} user={user} removeItem={removeItem}/>
+        <FoodCart setCartItems={setCartItems}
+        cartItems={cartItems} totalCount={totalCount}
+        user={user} removeItem={removeItem}
+        />
         <Footer />
       </BrowserRouter>
     </div>

@@ -9,7 +9,7 @@ import { addToCart } from '../../state'
 import { useParams } from 'react-router-dom'
 import Food from '../../components/Food'
 
-function ItemDetails({user}) {
+function ItemDetails({user, addToState}) {
 
   const dispatch = useDispatch()
   const { itemId } = useParams()
@@ -51,8 +51,8 @@ function ItemDetails({user}) {
   }, [itemId])
 
   function handleAddToCart() {
-    dispatch(addToCart({ item: {...item, count}}))
-    fetch('/orders', {
+    // dispatch(addToCart({ item: {...item, count}}))
+    fetch('http://locahost:5555/orders', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,8 +64,7 @@ function ItemDetails({user}) {
         }),
     })
     .then((r) => r.json())
-    console.log(item.id)
-    console.log(user.id)
+    .then(newData => addToState(newData))
 }
 
   // function handleAddSameItem() {

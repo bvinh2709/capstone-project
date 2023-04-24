@@ -8,7 +8,6 @@ import styled from '@emotion/styled'
 import {shades} from "../../theme"
 
 import {
-    removeFromCart,
     increaseCount,
     decreaseCount,
     setIsCartOpen,
@@ -41,7 +40,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem}) {
 
     function handleDelete() {
         cartItems.map((order) =>
-            fetch(`orders/${order.id}`, {
+            fetch(`http://localhost:5555/orders/${order.id}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' }
             })
