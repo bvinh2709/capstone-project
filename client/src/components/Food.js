@@ -1,23 +1,25 @@
 import React, {useState} from 'react'
-import { useDispatch } from 'react-redux'
+// import { useDispatch } from 'react-redux'
 import { IconButton, Box, Typography, useTheme, Button } from '@mui/material'
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
 import { shades } from '../theme'
-import { addToCart } from '../state'
+// import { addToCart } from '../state'
 import { useNavigate } from 'react-router-dom'
 
-function Food({item, width, user}) {
+function Food({item, width, user, addToState}) {
 
     const navigate = useNavigate()
-    const dispatch = useDispatch()
+    // const dispatch = useDispatch()
     const [count, setCount] = useState(1)
     const [isHovered, setIsHovered] = useState(false)
     const {
         palette: { neutral },
     } = useTheme()
 
-    function handleAddToCart() {
+    function handleAddToCart(e) {
+        e.preventDefault()
+        console.log('added to cart')
         // dispatch(addToCart({ item: {...item, count}}))
         fetch('/orders', {
             method: "POST",
@@ -30,10 +32,17 @@ function Food({item, width, user}) {
                 item_id: item.id
             }),
         })
-        .then((r) => r.json())
-        // .then(newObj=>addToState(newObj))
-        console.log(item.id)
-        console.log(user.id)
+        .then((r) => {
+          if (r.ok) {
+            r.json().then( newObj => {
+              console.log(newObj)
+              addToState(newObj)
+
+            })
+          } else {
+            alert('POST didnt work')
+          }
+        })
     }
 
     return (

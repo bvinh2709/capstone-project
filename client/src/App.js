@@ -32,7 +32,7 @@ function App() {
 
   const [user, setUser] = useState(null)
   const [cartItems, setCartItems] = useState([])
-  
+
   function addToState(cartObj){
     setCartItems(prevCartItems => [...prevCartItems, cartObj])
   }
@@ -83,7 +83,7 @@ function App() {
         <Navbar user={user} setUser={setUser} onLogout={handleLogout} totalCount={totalCount}/>
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<Home user={user}/>} />
+          <Route path="/" element={<Home user={user} addToState={addToState}/>} />
           <Route path="items/:itemId" element={<ItemDetails user={user} addToState={addToState}/>} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<Confirmation />} />

@@ -138,11 +138,11 @@ function ItemDetails({user, addToState}) {
               ADD TO CART
             </Button>
           </Box>
-          <Box>
-            <Box m="20px 0 5px 0" display="flex">
+          <Box m="20px 0 5px 0" display="flex">
+            {/* <Box >
               <FavoriteBorderOutlinedIcon />
               <Typography sx={{ ml: "5px" }}>SAVE FOR LATER</Typography>
-            </Box>
+            </Box> */}
             <Typography>CATERGORIES: {item?.category} </Typography>
           </Box>
         </Box>
@@ -170,7 +170,7 @@ function ItemDetails({user, addToState}) {
           justifyContent="space-between"
         >
           {items.slice(index, index + 3).map((item) => (
-            <Food key={item.id} item={item} user={user}/>
+            <Food key={item.id} item={item} user={user} addToState={addToState}/>
           ))}
         </Box>
       </Box>
