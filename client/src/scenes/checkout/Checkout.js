@@ -1,5 +1,4 @@
 import React, {useState} from 'react'
-import {useSelector} from 'react-redux'
 import { Box, Button, Stepper, Step, StepLabel } from '@mui/material'
 import {Formik} from "formik"
 import * as yup from "yup"
@@ -82,10 +81,9 @@ const checkoutSchema = [
   })
 ]
 
-function Checkout() {
+function Checkout({cartItems, user}) {
 
   const [activeStep, setActiveStep] = useState(0)
-  const cart = useSelector((state) => state.cart.cart)
   const isFirstStep = activeStep === 0
   const isSecondStep = activeStep === 1
 
@@ -111,13 +109,13 @@ function Checkout() {
     const requestBody = {
       userName: [values.firstName, values.lastName].join(' '),
       email: values.email,
-      products: cart.map(( {id, count }) => ({
+      products: cartItems.filter(object => object.user?.id === user?.id).map(( {id, count }) => ({
         id,
         count,
       }))
     }
 
-    const response = await fetch('/orders', {
+    const response = await fetch('http://localhost:5555/orders', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody)
