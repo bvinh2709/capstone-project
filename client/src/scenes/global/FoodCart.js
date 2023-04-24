@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Box, Button, Divider, IconButton, Typography } from '@mui/material'
 import { useSelector, useDispatch } from 'react-redux'
 import CloseIcon from "@mui/icons-material/Close"
@@ -21,11 +21,11 @@ const FlexBox = styled(Box)`
     align-items: center
 `
 
-function FoodCart({order, totalCount, user, totalPrice, setCartItems, removeItem}) {
+function FoodCart({order, totalCount, user, totalPrice, cartItems, removeItem, count, setCount, addToState, setCartItems}) {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
-
+    const [itemCount, setItemCount] = useState(order.item_count)
     // const cart = useSelector((state) => state.cart.cart)
     const isCartOpen = useSelector((state) => state.cart.isCartOpen)
 
@@ -37,22 +37,50 @@ function FoodCart({order, totalCount, user, totalPrice, setCartItems, removeItem
         });
     }
 
-    // function addQuantity(id) {
-    //     // const newLikes = apparelLikes + 1;
+    function plusQuantity() {
+        dispatch(increaseCount({id: order.id}))
+        const newCount = itemCount + 1;
 
-    //     fetch(`orders/${id}`, {
-    //       method: 'PATCH',
-    //       headers: { 'Content-Type': 'application/json' },
-    //       body: JSON.stringify({ item_count: item_count + 1 })
-    //     })
-    //       .then(r => r.json())
-    //       .then(data => {
-    //         countLikes(data);
+        fetch(`orders/${order.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item_count: newCount })
+        })
+          .then(r => r.json())
+          .then(data => {
+            setCount(newCount);
+            setItemCount(newCount)
+          });
+      }
 
-    //       });
-    //   }
+    function minusQuantity() {
+        dispatch(decreaseCount({id: order.id}))
+        if (order.item_count > 1) {
+            const newCount = itemCount - 1;
+            fetch(`orders/${order.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_count: newCount })
+            })
+            .then(r => r.json())
+            .then(data => {
+                setCount(newCount);
+                setItemCount(newCount)
+            });
+        }
+        else if (order.item_count === 1) {
+            removeItem(order.id)
+            fetch(`orders/${order.id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+            });
+        }
+      }
+
+
     function handleClearCart() {
         fetch(`/clearcart`)
+        setCartItems([])
     }
 
   return (
@@ -91,7 +119,9 @@ function FoodCart({order, totalCount, user, totalPrice, setCartItems, removeItem
                 {/* Cart List */}
                 {user ? (
                 <Box>
-
+                    {cartItems
+                    .filter(order => order.user?.id === user?.id)
+                    .map((order) => (
                         <Box key={order.item.id}>
                             <FlexBox p="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                 <Box flex="1 1 40%">
@@ -115,30 +145,30 @@ function FoodCart({order, totalCount, user, totalPrice, setCartItems, removeItem
                                     <FlexBox m="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                         <Box display="flex" alignItems="center" border={`1.5px solid ${shades.neutral[500]}`}>
                                             <IconButton
-                                                onClick={()=>dispatch(decreaseCount({id: order.id}))}
+                                                onClick={()=>minusQuantity(order.id)}
                                             >
                                                 <RemoveIcon />
                                             </IconButton>
                                             <Typography>{order.item_count}</Typography>
                                             <IconButton
-                                                onClick={()=>dispatch(increaseCount({id: order.id}))}
+                                                onClick={()=>plusQuantity(order.id)}
                                             >
                                                 <AddIcon />
                                             </IconButton>
                                         </Box>
                                         {/* PRICE */}
                                         <Typography fontWeight="bold">
-                                            ${order.item.price}
+                                            {order.item_count} X ${order.item.price}
                                         </Typography>
                                     </FlexBox>
                                 </Box>
                             </FlexBox>
                             <Divider />
                         </Box>
-
+                    ))}
                 </Box>
                 ) : (
-                    <Box> Your cart is empty </Box>
+                    <Box> Your cart is empty. <IconButton onClick={()=> navigate('/login')}>Sign in</IconButton> to see your cart! </Box>
                 )
 }
                 {/* ACTIONS */}

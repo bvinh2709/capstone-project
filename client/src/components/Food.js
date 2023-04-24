@@ -5,10 +5,10 @@ import RemoveIcon from "@mui/icons-material/Remove"
 import { shades } from '../theme'
 import { useNavigate } from 'react-router-dom'
 
-function Food({item, width, user, addToState}) {
+function Food({count, setCount, item, width, user, addToState, totalCount}) {
 
     const navigate = useNavigate()
-    const [count, setCount] = useState(1)
+    // const [foodCount, setFoodCount] = useState(1)
     const [isHovered, setIsHovered] = useState(false)
 
     const {
@@ -28,11 +28,18 @@ function Food({item, width, user, addToState}) {
                 item_id: item.id
             }),
         })
-        .then((r) => r.json())
-        .then(data=> {
-            addToState(data)
+        .then((r) => {
+            if (r.ok) {
+                r.json().then((cartObj) => {
+            addToState(cartObj)
+            setCount(count)
         })
+        }})
     }
+    // .then((response) => {
+    //     if (response.ok) {
+    //         response.json().then((user) =>
+    //         setUser(user));
 
     return (
         <Box width={width}>

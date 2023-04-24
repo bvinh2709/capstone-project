@@ -32,7 +32,7 @@ function App() {
 
   const [user, setUser] = useState(null)
   const [cartItems, setCartItems] = useState([])
-
+  const [count, setCount] = useState(1)
 
   useEffect(() => {
     fetch("/check_session")
@@ -67,8 +67,11 @@ function App() {
   // function handleCount() {
   //   setCount(totalCount)
   // }
+
+
   function addToState(cartObj){
-    setCartItems([cartObj, ...cartItems])
+    const newCartArray = [...cartItems, cartObj]
+    setCartItems(newCartArray)
   }
 
   const totalCount = cartItems
@@ -92,14 +95,40 @@ function App() {
       setCartItems(newList)
   }
 
+    const propCartItem = cartItems
+    .filter(order => order.user?.id === user?.id)
+    .map((item) => (
+      <FoodCart
+      cartItems={cartItems} addToState={addToState}
+      key={item.id} order={item} removeItem={removeItem}
+      count={count} setCount={setCount}
+      setCartItems={setCartItems} totalCount={totalCount} user={user} totalPrice={totalPrice}
+      />
+    ))
+
   return (
-    <div className="app">
+    <div>
       <BrowserRouter>
-        <Navbar user={user} setUser={setUser} onLogout={handleLogout} totalCount={totalCount} />
+        <Navbar
+        user={user} setUser={setUser} onLogout={handleLogout}
+         totalCount={totalCount} count={count} setCount={setCount}
+        />
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<Home user={user} addToState={addToState}/>} />
-          <Route path="items/:itemId" element={<ItemDetails user={user} addToState={addToState}/>} />
+          <Route path="/"
+          element={<Home
+            user={user} addToState={addToState}
+            count={count} setCount={setCount}
+            totalCount={totalCount}
+            />}
+          />
+          <Route path="items/:itemId"
+          element={<ItemDetails
+            user={user} addToState={addToState}
+            count={count} setCount={setCount}
+            totalCount={totalCount}
+            />}
+          />
           <Route path="checkout" element={<Checkout />} />
           <Route path="checkout/success" element={<Confirmation />} />
           <Route path="/login" element={<Login handleLogin={handleLogin}/>} />
@@ -107,13 +136,7 @@ function App() {
           <Route path='/profile' element={<Profile />} />
           <Route path="*" element={<h1>404 Page Not Found</h1>} />
         </Routes>
-        {cartItems
-        .filter(order => order.user?.id === user?.id)
-        .map((item) => (
-          <FoodCart
-          key={item.id} order={item} removeItem={removeItem}
-          setCartItems={setCartItems} totalCount={totalCount} user={user} totalPrice={totalPrice}/>
-        ))}
+        {propCartItem}
         <Footer />
       </BrowserRouter>
     </div>

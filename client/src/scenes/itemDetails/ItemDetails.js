@@ -9,12 +9,12 @@ import { shades } from '../../theme'
 import { useParams } from 'react-router-dom'
 import Food from '../../components/Food'
 
-function ItemDetails({user, addToState}) {
+function ItemDetails({count, setCount, user, addToState}) {
 
   // const dispatch = useDispatch()
   const { itemId } = useParams()
   const [value, setValue] = useState("description")
-  const [count, setCount] = useState(1)
+  // const [count, setCount] = useState(1)
   const [item, setItem] = useState(null)
   const [items, setItems] = useState([])
 
@@ -143,11 +143,8 @@ function ItemDetails({user, addToState}) {
               ADD TO CART
             </Button>
           </Box>
-          <Box>
-            <Box m="20px 0 5px 0" display="flex">
-              <FavoriteBorderOutlinedIcon />
-              <Typography sx={{ ml: "5px" }}>SAVE FOR LATER</Typography>
-            </Box>
+          <Box m="20px 0 5px 0" display="flex">
+
             <Typography>CATERGORIES: {item?.category} </Typography>
           </Box>
         </Box>
@@ -175,7 +172,7 @@ function ItemDetails({user, addToState}) {
           justifyContent="space-between"
         >
           {items.slice(index, index + 3).map((item) => (
-            <Food key={item.id} item={item} user={user} addToState={addToState}/>
+            <Food key={item.id} item={item} user={user} addToState={addToState} count={count} setCount={setCount}/>
           ))}
         </Box>
       </Box>
