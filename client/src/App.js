@@ -114,13 +114,9 @@ function App() {
 
 
   return (
-    <div>
+    <div className="app">
       <BrowserRouter>
-        <Navbar
-        user={user} setUser={setUser} onLogout={handleLogout}
-         totalCount={totalCount}
-        //  count={count} setCount={setCount}
-        />
+        <Navbar user={user} setUser={setUser} onLogout={handleLogout} totalCount={totalCount}/>
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home user={user} addToState={addToState}/>} />
