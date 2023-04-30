@@ -127,10 +127,6 @@ function App() {
           <Route path="/signup" element={<SignUp user={user} setUser={setUser}/>} />
           <Route path='/profile' element={<Profile />} />
           <Route path="*" element={<h1>404 Page Not Found</h1>} />
-          <Route
-
-
-          />
         </Routes>
         <FoodCart setCartItems={setCartItems}
         cartItems={cartItems} totalCount={totalCount}
