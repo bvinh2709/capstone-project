@@ -10,7 +10,6 @@ import {
   LogoutOutlined,
   PermIdentityOutlined,
   NoAccountsOutlined,
-  MenuOutlined
 } from '@mui/icons-material'
 
 import { useNavigate } from "react-router-dom"
@@ -189,10 +188,10 @@ function Navbar({user, setUser, onLogout, totalCount, count, setCount}) {
                </Badge>
              )
            }
-            <IconButton sx={{ color: 'white' }}>
+            {/* <IconButton sx={{ color: 'white' }}>
                 <MenuOutlined />
                 Menu
-            </IconButton>
+            </IconButton> */}
         </Box>
       </Box>
     </Box>

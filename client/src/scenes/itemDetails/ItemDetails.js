@@ -1,22 +1,17 @@
 import React, {useState, useEffect} from 'react'
-import { useDispatch } from 'react-redux'
 import { IconButton, Box, Typography, Button, Tabs, Tab } from '@mui/material'
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
-import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined"
 import { shades } from '../../theme'
-// import { addToCart } from '../../state'
 import { useParams } from 'react-router-dom'
-import Food from '../../components/Food'
+// import Food from '../../components/Food'
 
-function ItemDetails({count, setCount, user, addToState}) {
-
-  // const dispatch = useDispatch()
+function ItemDetails({user, addToState, cartItems}) {
   const { itemId } = useParams()
   const [value, setValue] = useState("description")
-  // const [count, setCount] = useState(1)
+  const [count, setCount] = useState(1)
   const [item, setItem] = useState(null)
-  const [items, setItems] = useState([])
+  // const [items, setItems] = useState([])
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -31,45 +26,30 @@ function ItemDetails({count, setCount, user, addToState}) {
     setItem(itemJson)
   }
 
-  async function getItems() {
-    const items = await fetch(
-        "http://localhost:5555/items",
-        {method: "GET"}
-    )
+//   async function getItems() {
+//     const items = await fetch(
+//         "http://localhost:5555/items",
+//         {method: "GET"}
+//     )
 
-    const itemsJson = await items.json()
-    setItems(itemsJson)
-}
+//     const itemsJson = await items.json()
+//     setItems(itemsJson)
+// }
 
-  const index = Math.floor(Math.random() * (items.length - 2))
+//   const index = Math.floor(Math.random() * (items.length - 2))
 
+  const something = [...cartItems].map((item) => item.item_id)
+  console.log(something)
 
 
   useEffect(() => {
     getItem()
-    getItems()
-  }, [itemId])
+    // getItems()
+  }, [])
 
-
-  // function addToCart(){
-  //   const cartItem ={
-  //     image: image,
-  //     description: description,
-  //     gender: gender,
-  //     price: price,
-  //     category: category
-  //   }
-  //   fetch("http://localhost:3000/cart", {
-  //     method: 'POST',
-  //     headers: {"Content-Type": "application/json"},
-  //     body: JSON.stringify(cartItem)
-  //   })
-
-  // }
-
-  function handleAddToCart() {
-    // dispatch(addToCart({ item: {...item, count}}))
-
+  function handleAddToCart(e) {
+    e.preventDefault()
+    console.log('added to cart')
     fetch('/orders', {
         method: "POST",
         headers: {
@@ -81,10 +61,21 @@ function ItemDetails({count, setCount, user, addToState}) {
             item_id: item.id
         }),
     })
-    .then((r) => r.json())
-    .then(cartItem=> addToState(cartItem))
-}
+    .then((r) => {
+      if (r.ok) {
+        r.json().then( newObj => {
+          console.log(newObj)
+          addToState(newObj)
 
+        })
+      } else {
+        alert('POST didnt work')
+      }
+    })
+}
+// if (response.ok) {
+//   response.json().then((user) =>
+//   setUser(user));
   // function handleAddSameItem() {
   //   setCount(count + 1)
   // }
@@ -144,7 +135,10 @@ function ItemDetails({count, setCount, user, addToState}) {
             </Button>
           </Box>
           <Box m="20px 0 5px 0" display="flex">
-
+            {/* <Box >
+              <FavoriteBorderOutlinedIcon />
+              <Typography sx={{ ml: "5px" }}>SAVE FOR LATER</Typography>
+            </Box> */}
             <Typography>CATERGORIES: {item?.category} </Typography>
           </Box>
         </Box>
@@ -160,11 +154,12 @@ function ItemDetails({count, setCount, user, addToState}) {
           <div>{item?.description}</div>
         )}
       </Box>
-      <Box mt="50px" width="100%">
+      {/* <Box mt="50px" width="100%">
         <Typography variant="h3" fontWeight="bold">
           Related Items
         </Typography>
         <Box
+          maxWidth="100%"
           mt="20px"
           display="flex"
           flexWrap="wrap"
@@ -172,10 +167,10 @@ function ItemDetails({count, setCount, user, addToState}) {
           justifyContent="space-between"
         >
           {items.slice(index, index + 3).map((item) => (
-            <Food key={item.id} item={item} user={user} addToState={addToState} count={count} setCount={setCount}/>
+            <Food key={item.id} item={item} user={user} addToState={addToState}/>
           ))}
         </Box>
-      </Box>
+      </Box> */}
     </Box>
   )
 }

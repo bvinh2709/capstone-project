@@ -5,7 +5,7 @@ from config import db, bcrypt
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    serialize_rules = ('-orders',)
+    serialize_rules = ('orders',)
 
     id = db.Column(db.Integer, primary_key = True)
     email = db.Column(db.String, nullable=False)

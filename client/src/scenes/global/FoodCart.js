@@ -4,12 +4,11 @@ import { useSelector, useDispatch } from 'react-redux'
 import CloseIcon from "@mui/icons-material/Close"
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
+import CancelPresentationIcon from "@mui/icons-material/CancelPresentation"
 import styled from '@emotion/styled'
 import {shades} from "../../theme"
 
 import {
-    increaseCount,
-    decreaseCount,
     setIsCartOpen,
 } from "../../state"
 
@@ -21,67 +20,66 @@ const FlexBox = styled(Box)`
     align-items: center
 `
 
-function FoodCart({order, totalCount, user, totalPrice, cartItems, removeItem, count, setCount, addToState, setCartItems}) {
+function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countItemCount}) {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const [itemCount, setItemCount] = useState(order.item_count)
+
     // const cart = useSelector((state) => state.cart.cart)
     const isCartOpen = useSelector((state) => state.cart.isCartOpen)
 
-    function handleDelete() {
-        removeItem(order.id)
-        fetch(`orders/${order.id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
-        });
-    }
-
-    function plusQuantity() {
-        dispatch(increaseCount({id: order.id}))
-        const newCount = itemCount + 1;
-
-        fetch(`orders/${order.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ item_count: newCount })
-        })
-          .then(r => r.json())
-          .then(data => {
-            setCount(newCount);
-            setItemCount(newCount)
-          });
-      }
-
-    function minusQuantity() {
-        dispatch(decreaseCount({id: order.id}))
-        if (order.item_count > 1) {
-            const newCount = itemCount - 1;
-            fetch(`orders/${order.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ item_count: newCount })
-            })
-            .then(r => r.json())
-            .then(data => {
-                setCount(newCount);
-                setItemCount(newCount)
-            });
-        }
-        else if (order.item_count === 1) {
-            removeItem(order.id)
-            fetch(`orders/${order.id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
-            });
-        }
-      }
-
+    const totalPrice = cartItems.filter(order => order.user?.id === user?.id).reduce((total, item) => {
+        return total + item.item_count * item.item.price
+    }, 0)
 
     function handleClearCart() {
         fetch(`/clearcart`)
         setCartItems([])
     }
+
+    function handleDelete(id) {
+            (removeItem(id))
+            fetch(`http://localhost:5555/orders/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+            })
+    }
+
+    function plusQuantity(id, item_count) {
+        console.log('added 1')
+        const newCount = item_count + 1
+        fetch(`http://localhost:5555/orders/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_count: newCount})
+        })
+            .then(r => r.json())
+            .then(data => {
+                countItemCount(data)
+            })
+
+        }
+
+
+
+      function minusQuantity(id, item_count) {
+        console.log('minus 1')
+        if (item_count > 1) {
+            const newCount = item_count - 1;
+            fetch(`http://localhost:5555/orders/${id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ item_count: newCount })
+            })
+              .then(r => r.json())
+              .then(data => {
+                countItemCount(data)
+              });
+        } else if (item_count === 1) {
+            handleDelete(id)
+        }
+      }
+
 
   return (
     <Box
@@ -112,16 +110,16 @@ function FoodCart({order, totalCount, user, totalPrice, cartItems, removeItem, c
                     ) : (
                         <Typography variant="h3">your order (0)</Typography>
                     )}
-                    <IconButton onClick={()=>dispatch(setIsCartOpen({}))}>
+                    <IconButton sx={{backgroundColor: "black", color: "white"}} onClick={()=>dispatch(setIsCartOpen({}))}>
                         <CloseIcon />
                     </IconButton>
                 </Box>
                 {/* Cart List */}
                 {user ? (
                 <Box>
-                    {cartItems
+                {cartItems
                     .filter(order => order.user?.id === user?.id)
-                    .map((order) => (
+                    .map((order, index) => (
                         <Box key={order.item.id}>
                             <FlexBox p="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                 <Box flex="1 1 40%">
@@ -134,31 +132,30 @@ function FoodCart({order, totalCount, user, totalPrice, cartItems, removeItem, c
                                 <Box flex="1 1 60%">
                                     <FlexBox mb="5px" display="flex" justifyContent= "space-between" alignItems="center">
                                         <Typography fontWeight="bold">
-                                            {order.item.name}
+                                        {index+1}. {order.item.name}
                                         </Typography>
-                                        <IconButton onClick={()=> handleDelete(order.id)}>
-                                        {/* <IconButton> */}
-                                            <CloseIcon />
+                                        <IconButton onClick={()=>handleDelete(order.id)}>
+                                            <CancelPresentationIcon />
                                         </IconButton>
                                     </FlexBox>
                                     <Typography>{order.item.description}</Typography>
                                     <FlexBox m="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
                                         <Box display="flex" alignItems="center" border={`1.5px solid ${shades.neutral[500]}`}>
                                             <IconButton
-                                                onClick={()=>minusQuantity(order.id)}
+                                                onClick={()=>minusQuantity(order.id, order.item_count)}
                                             >
                                                 <RemoveIcon />
                                             </IconButton>
                                             <Typography>{order.item_count}</Typography>
                                             <IconButton
-                                                onClick={()=>plusQuantity(order.id)}
+                                                onClick={()=>plusQuantity(order.id, order.item_count)}
                                             >
                                                 <AddIcon />
                                             </IconButton>
                                         </Box>
                                         {/* PRICE */}
                                         <Typography fontWeight="bold">
-                                            {order.item_count} X ${order.item.price}
+                                            {order.item_count} x ${order.item.price}
                                         </Typography>
                                     </FlexBox>
                                 </Box>
@@ -166,25 +163,28 @@ function FoodCart({order, totalCount, user, totalPrice, cartItems, removeItem, c
                             <Divider />
                         </Box>
                     ))}
-                </Box>
-                ) : (
-                    <Box> Your cart is empty. <IconButton onClick={()=> navigate('/login')}>Sign in</IconButton> to see your cart! </Box>
-                )
-}
-                {/* ACTIONS */}
-                <Box m="20px 0">
+                    <Box m="20px 0">
                     <FlexBox m="20px 0" display="flex" justifyContent= "space-between" alignItems="center">
                         <Typography fontWeight="bold">SUBTOTAL</Typography>
-                        {user ? (
-                            <Typography fontWeight="bold">${totalPrice}</Typography>
-                        ) : (
-                            <Typography fontWeight="bold">$0</Typography>
-                        )
-                    }
+                        <Typography fontWeight="bold">${totalPrice}</Typography>
                     </FlexBox>
                     <Button
                     sx={{
                         backgroundColor: "red",
+                        color: "white",
+                        borderRadius: 0,
+                        minWidth: '100%',
+                        padding: "20px 40px",
+                        margin: "20px 0",
+                    }}
+                    onClick={handleClearCart}
+                    >
+                        CLEAR CART
+                    </Button>
+
+                    <Button
+                    sx={{
+                        backgroundColor: shades.primary[400],
                         color: "white",
                         borderRadius: 0,
                         minWidth: '100%',
@@ -213,6 +213,42 @@ function FoodCart({order, totalCount, user, totalPrice, cartItems, removeItem, c
                     </Button>
 
                 </Box>
+                </Box>
+
+                ) : (
+                <Box>
+                <Box>
+                    <IconButton onClick={()=> navigate('/login')}><Typography color={"blue"}>Sign In</Typography></IconButton> to see your Cart info
+                </Box>
+                <Box>
+                    <Typography>OR</Typography>
+                </Box>
+                <Box>
+                    <IconButton onClick={()=> navigate('/signup')}><Typography color={"blue"}>Sign Up</Typography></IconButton> to create a New Account
+                </Box>
+
+                <Box m="20px 0">
+                    <Button
+                    disabled="True"
+                    sx={{
+                        backgroundColor: 'grey',
+                        color: "white",
+                        borderRadius: 0,
+                        minWidth: '100%',
+                        padding: "20px 40px",
+                        margin: "20px 0",
+                    }}
+                    onClick={()=> {
+                        navigate('/checkout')
+                        dispatch(setIsCartOpen({}))
+                    }}
+                    >
+                        CHECKOUT
+                    </Button>
+
+                </Box>
+                </Box>
+                )}
             </Box>
         </Box>
     </Box>

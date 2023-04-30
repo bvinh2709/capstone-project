@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Food from "../../components/Food"
 import { setItems } from '../../state'
 
-function FoodMenu({count, setCount, user, addToState, totalCount}) {
+function FoodMenu({user, addToState}) {
 
     const dispatch = useDispatch()
     const [value, setValue] = useState("all")
@@ -77,22 +77,13 @@ function FoodMenu({count, setCount, user, addToState, totalCount}) {
         columnGap="1.33%"
         >
             {value === "all" && items.map((item) => (
-                <Food
-                key={item.id} item={item} user={user} addToState={addToState}
-                count={count} setCount={setCount} totalCount={totalCount}
-                />))}
+                <Food key={item.id} item={item} user={user} addToState={addToState} />))}
             {value === "newItem" && newItem.map((item) => (
-                <Food key={item.id} item={item} user={user} addToState={addToState}
-                count={count} setCount={setCount} totalCount={totalCount}
-                />))}
+                <Food key={item.id} item={item} user={user}addToState={addToState} />))}
             {value === "bestItem" && bestItem.map((item) => (
-                <Food key={item.id} item={item} user={user} addToState={addToState}
-                count={count} setCount={setCount} totalCount={totalCount}
-                />))}
+                <Food key={item.id} item={item} user={user} addToState={addToState} />))}
             {value === "topRated" && topRated.map((item) => (
-                <Food key={item.id} item={item} user={user} addToState={addToState}
-                count={count} setCount={setCount} totalCount={totalCount}
-                />))}
+                <Food key={item.id} item={item} user={user} addToState={addToState}/>))}
         </Box>
     </Box>
   )

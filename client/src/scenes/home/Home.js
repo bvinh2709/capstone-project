@@ -2,11 +2,11 @@ import React from 'react'
 // import MainCarousel from "./MainCarousel"
 import FoodMenu from "./FoodMenu";
 
-function Home({count, setCount, user, addToState, totalCount}) {
+function Home({user, addToState}) {
   return (
     <div>
       {/* <MainCarousel /> */}
-      <FoodMenu user={user} addToState={addToState} count={count} setCount={setCount} totalCount={totalCount}/>
+      <FoodMenu addToState={addToState} user={user}/>
     </div>
   )
 }

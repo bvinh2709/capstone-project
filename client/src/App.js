@@ -17,6 +17,11 @@ import Footer from "./scenes/global/Footer";
 import SignUp from "./scenes/global/SignUp";
 import Login from "./scenes/global/Login";
 import Profile from "./scenes/global/Profile";
+import CheckOutStripe from "./scenes/checkout/CheckOutStripe";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
+const stripePromise = loadStripe("pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y")
 
 const ScrollToTop = () => {
   const {pathname} = useLocation()
@@ -32,7 +37,30 @@ function App() {
 
   const [user, setUser] = useState(null)
   const [cartItems, setCartItems] = useState([])
-  const [count, setCount] = useState(1)
+  const [clientSecret, setClientSecret] = useState("")
+
+  useEffect(() => {
+    fetch("http://localhost:5555/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: [{ id: "xl-tshirt" }] }),
+    })
+      .then((res) => res.json())
+      .then((data) => setClientSecret(data.clientSecret));
+  }, []);
+
+  const appearance = {
+    theme: 'stripe',
+  };
+  const options = {
+    clientSecret,
+    appearance,
+  };
+
+
+  function addToState(cartObj){
+    setCartItems(prevCartItems => [...prevCartItems, cartObj])
+  }
 
   useEffect(() => {
     fetch("/check_session")
@@ -43,18 +71,18 @@ function App() {
           // console.log(user))
       }
   });
+
   }, [])
 
-  useEffect(()=>{
-    fetch('/orders')
+  useEffect(()=> {
+    fetch('http://localhost:5555/orders')
     .then(r => r.json())
-    .then((data)=> {
-      setCartItems(data)
-      })
-
+    .then(data => setCartItems(data))
   }, [])
 
-
+  const totalCount = cartItems.filter(order => order.user?.id === user?.id).reduce((total, item) => {
+    return total + item.item_count
+  }, 0)
 
   function handleLogin(user) {
     setUser(user);
@@ -64,79 +92,51 @@ function App() {
       setUser(null);
   }
 
-  // function handleCount() {
-  //   setCount(totalCount)
-  // }
-
-
-  function addToState(cartObj){
-    const newCartArray = [...cartItems, cartObj]
-    setCartItems(newCartArray)
+  function removeItem(doomedId) {
+    const newList = cartItems
+    .filter(order => order.user?.id === user?.id)
+    .filter(cartObj => {
+      return cartObj.id !== doomedId
+    })
+    setCartItems(newList)
   }
 
-  const totalCount = cartItems
-  .filter(order => order.user?.id === user?.id)
-  .reduce((total, item) => {
-    return total + item.item_count
-  }, 0)
-
-  const totalPrice = cartItems
-    .filter(order => order.user?.id === user?.id)
-    .reduce((total, item) => {
-        return total + item.item_count * item.item.price
-    }, 0)
-
-    function removeItem(doomedId) {
-      const newList = cartItems
-      .filter(order => order.user?.id === user?.id)
-      .filter(cartObj => {
-        return cartObj.id !== doomedId
-      })
-      setCartItems(newList)
+  function countItemCount (cartObj){
+    const itemCounted = [...cartItems].map(itemObj => {
+      if(itemObj.id === cartObj.id){
+        return cartObj
+      }else{
+        return itemObj
+      }
+    })
+    setCartItems(itemCounted)
   }
 
-    const propCartItem = cartItems
-    .filter(order => order.user?.id === user?.id)
-    .map((item) => (
-      <FoodCart
-      cartItems={cartItems} addToState={addToState}
-      key={item.id} order={item} removeItem={removeItem}
-      count={count} setCount={setCount}
-      setCartItems={setCartItems} totalCount={totalCount} user={user} totalPrice={totalPrice}
-      />
-    ))
 
   return (
     <div>
       <BrowserRouter>
         <Navbar
         user={user} setUser={setUser} onLogout={handleLogout}
-         totalCount={totalCount} count={count} setCount={setCount}
+         totalCount={totalCount}
+        //  count={count} setCount={setCount}
         />
         <ScrollToTop />
         <Routes>
-          <Route path="/"
-          element={<Home
-            user={user} addToState={addToState}
-            count={count} setCount={setCount}
-            totalCount={totalCount}
-            />}
-          />
-          <Route path="items/:itemId"
-          element={<ItemDetails
-            user={user} addToState={addToState}
-            count={count} setCount={setCount}
-            totalCount={totalCount}
-            />}
-          />
-          <Route path="checkout" element={<Checkout />} />
+          <Route path="/" element={<Home user={user} addToState={addToState}/>} />
+          <Route path="items/:itemId" element={<ItemDetails cartItems={cartItems} user={user} addToState={addToState}/>} />
+          <Route path="checkout" element={<Checkout cartItems={cartItems} user={user}/>} />
           <Route path="checkout/success" element={<Confirmation />} />
           <Route path="/login" element={<Login handleLogin={handleLogin}/>} />
           <Route path="/signup" element={<SignUp user={user} setUser={setUser}/>} />
           <Route path='/profile' element={<Profile />} />
           <Route path="*" element={<h1>404 Page Not Found</h1>} />
         </Routes>
-        {propCartItem}
+        <FoodCart setCartItems={setCartItems}
+        cartItems={cartItems} totalCount={totalCount}
+        user={user} removeItem={removeItem} countItemCount={countItemCount}
+        />
+
         <Footer />
       </BrowserRouter>
     </div>

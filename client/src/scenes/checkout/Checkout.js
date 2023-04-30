@@ -1,5 +1,4 @@
 import React, {useState} from 'react'
-import {useSelector} from 'react-redux'
 import { Box, Button, Stepper, Step, StepLabel } from '@mui/material'
 import {Formik} from "formik"
 import * as yup from "yup"
@@ -7,9 +6,10 @@ import { shades } from '../../theme'
 import Shipping from "./Shipping"
 import Payment from "./Payment"
 import { loadStripe } from "@stripe/stripe-js"
+import { useNavigate } from 'react-router'
 
 const stripePromise = loadStripe(
-  "pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y"
+  // "pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y"
 )
 
 const initialValues = {
@@ -82,13 +82,12 @@ const checkoutSchema = [
   })
 ]
 
-function Checkout() {
+function Checkout({cartItems, user}) {
 
   const [activeStep, setActiveStep] = useState(0)
-  const cart = useSelector((state) => state.cart.cart)
   const isFirstStep = activeStep === 0
   const isSecondStep = activeStep === 1
-
+  const navigate = useNavigate()
   const handleFormSubmit = async (values, actions) => {
     setActiveStep(activeStep + 1)
 
@@ -111,13 +110,13 @@ function Checkout() {
     const requestBody = {
       userName: [values.firstName, values.lastName].join(' '),
       email: values.email,
-      products: cart.map(( {id, count }) => ({
+      products: cartItems.filter(object => object.user?.id === user?.id).map(( {id, count }) => ({
         id,
         count,
       }))
     }
 
-    const response = await fetch('/orders', {
+    const response = await fetch('http://localhost:5555/orders', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody)
@@ -192,6 +191,7 @@ function Checkout() {
                     Back
                   </Button>
                 )}
+                {!isSecondStep ? (
                 <Button
                     fullWidth
                     type="submit"
@@ -206,8 +206,29 @@ function Checkout() {
                     }}
                     // onClick={()=> setActiveStep(activeStep - 1)}
                   >
-                    {!isSecondStep ? "Next" : "Place Order"}
+                    Next
                     </Button>
+
+                ) : (
+                  <Button
+                    onClick={()=>navigate('/checkout/success')}
+                    fullWidth
+                    type="submit"
+                    color="primary"
+                    varian="contained"
+                    sx={{
+                      backgroundColor: shades.primary[400],
+                      boxShadow: "none",
+                      color: "white",
+                      borderRadius: 0,
+                      padding: "15px 40px"
+                    }}
+                    // onClick={()=> setActiveStep(activeStep - 1)}
+                  >
+                    Place Order
+                    </Button>
+                )
+              }
               </Box>
             </form>
           )}
