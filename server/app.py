@@ -67,17 +67,10 @@ class Login(Resource):
         email = request.get_json().get('email')
         password = request.get_json().get('password')
         user = User.query.filter(User.email == email).first()
-
-
-
-
-
         # if user:
         if user.authenticate(password):
             session['user_id'] = user.id
             session.permanent = True
-
-
             return user.to_dict()
         elif user is None:
             return {'error': 'Invalid email or password'}, 404

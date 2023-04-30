@@ -9,7 +9,7 @@ import { loadStripe } from "@stripe/stripe-js"
 import { useNavigate } from 'react-router'
 
 const stripePromise = loadStripe(
-  "pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y"
+  // "pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y"
 )
 
 const initialValues = {
@@ -211,7 +211,7 @@ function Checkout({cartItems, user}) {
 
                 ) : (
                   <Button
-                    onClick={()=>navigate('/confirmation')}
+                    onClick={()=>navigate('/checkout/success')}
                     fullWidth
                     type="submit"
                     color="primary"
