@@ -181,20 +181,6 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
                     >
                         CLEAR CART
                     </Button>
-
-                    <Button
-                    sx={{
-                        backgroundColor: shades.primary[400],
-                        color: "white",
-                        borderRadius: 0,
-                        minWidth: '100%',
-                        padding: "20px 40px",
-                        margin: "20px 0",
-                    }}
-                    onClick={handleClearCart}
-                    >
-                        CLEAR CART
-                    </Button>
                     <Button
                     sx={{
                         backgroundColor: shades.primary[400],

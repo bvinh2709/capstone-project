@@ -1,4 +1,4 @@
-import { useDispatch, useSelector} from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { Badge, Box, IconButton, Menu, MenuItem, Button} from "@mui/material"
 import {
   PersonOutline,
@@ -15,14 +15,13 @@ import {
 import { useNavigate } from "react-router-dom"
 // import {shades} from "../../theme"
 import { setIsCartOpen } from "../../state"
-import {useState, useEffect} from 'react'
+import {useState} from 'react'
 
-function Navbar({user, setUser, onLogout, totalCount, count, setCount}) {
+function Navbar({user, setUser, onLogout, totalCount}) {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const cart = useSelector((state) => state.cart.cart)
+  // const cart = useSelector((state) => state.cart.cart)
   const [anchorEl, setAnchorEl] = useState(null);
-
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -141,9 +140,9 @@ function Navbar({user, setUser, onLogout, totalCount, count, setCount}) {
             )}
             {user ? (
               <Badge
-                  badgeContent={cart.length}
+                  badgeContent={totalCount}
                   color="secondary"
-                  invisible={cart.length === 0}
+                  invisible={totalCount === 0}
                   sx={{
                   "& .MuiBadge-badge": {
                       right: 5,
@@ -156,38 +155,37 @@ function Navbar({user, setUser, onLogout, totalCount, count, setCount}) {
               >
               <IconButton
                 onClick={() => dispatch(setIsCartOpen({}))}
-                // onClick={() => console.log('Clicked')}
                 sx={{ color: 'white' }}
               >
                 <FastfoodOutlined />
                 Order
               </IconButton>
               </Badge>
-              ) : (
-               <Badge
-                   badgeContent={cart.length}
-                   color="secondary"
-                   invisible={cart.length === 0}
-                   sx={{
-                   "& .MuiBadge-badge": {
+            ) : (
+              <Badge
+                  badgeContent={0}
+                  color="secondary"
+                  invisible={totalCount === 0}
+                  sx={{
+                  "& .MuiBadge-badge": {
                       right: 5,
-                       top: 5,
-                       padding: " 0 4px",
-                       height: "14px",
-                       minWidth: "13px",
-                   },
-                   }}
-               >
-               <IconButton
-                 onClick={() => dispatch(setIsCartOpen({}))}
-                 sx={{ color: 'white' }}
-               >
-                 <FastfoodOutlined />
-                 Order
-               </IconButton>
-               </Badge>
-             )
-           }
+                      top: 5,
+                      padding: " 0 4px",
+                      height: "14px",
+                      minWidth: "13px",
+                  },
+                  }}
+              >
+              <IconButton
+                onClick={() => dispatch(setIsCartOpen({}))}
+                sx={{ color: 'white' }}
+              >
+                <FastfoodOutlined />
+                Order
+              </IconButton>
+              </Badge>
+            )
+          }
             {/* <IconButton sx={{ color: 'white' }}>
                 <MenuOutlined />
                 Menu
