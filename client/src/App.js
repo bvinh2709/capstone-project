@@ -125,7 +125,7 @@ function App() {
           <Route path="checkout/success" element={<Confirmation />} />
           <Route path="/login" element={<Login handleLogin={handleLogin}/>} />
           <Route path="/signup" element={<SignUp user={user} setUser={setUser}/>} />
-          <Route path='/profile' element={<Profile />} />
+          <Route path='/profile' element={<Profile user={user} />} />
           <Route path="*" element={<h1>404 Page Not Found</h1>} />
         </Routes>
         <FoodCart setCartItems={setCartItems}

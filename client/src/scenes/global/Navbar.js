@@ -113,7 +113,7 @@ function Navbar({user, setUser, onLogout, totalCount}) {
                   // }}
                 >
                   <MenuItem onClick={handleClose} sx={{ color: 'white' }}>
-                    <Button >
+                    <Button onClick={()=>navigate('/profile')}>
                       Profile
                       <PermIdentityOutlined />
                     </Button>
