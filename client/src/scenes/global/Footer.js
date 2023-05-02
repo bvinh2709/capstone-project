@@ -63,14 +63,14 @@ function Footer() {
                 <Typography mb="30px">Return & Refund</Typography>
             </Box>
 
-            <Box maxWidth='15%' textAlign="center" color={shades.neutral[500]}>
+            <Box width="clamp(20%, 25%, 30%)" maxWidth='15%' textAlign="center" color={shades.neutral[500]}>
                 <Typography variant="h4" fontWeight="bold" mb="30px">
                     Contact Us
                 </Typography>
                 <img src="https://images.unsplash.com/photo-1586769852044-692d6e3703f0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fGNvbnRhY3QlMjB1c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60" alt="about us" width="123px" height='100px'/>
                 <Typography mb="30px" maxWidth='90%' ml='10px'>6181 Old Dobbin Ln Ste 200, Columbia, MD 21045</Typography>
                 <Typography mb="30px" maxWidth='90%' ml='10px'>Email: flatburger@burger.com</Typography>
-                <Typography mb="30px" maxWidth='90%' ml='10px'>(444) 555-9999</Typography>
+                <Typography mb="30px" maxWidth='90%' ml='10px'>(444)-555-9999</Typography>
             </Box>
         </Box>
     </Box>
