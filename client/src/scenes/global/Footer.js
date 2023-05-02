@@ -48,7 +48,7 @@ function Footer() {
                 <Typography variant="h4" fontWeight="bold" mb="30px">
                     About Us
                 </Typography>
-                {/* <img src="https://images.unsplash.com/photo-1577563908411-5077b6dc7624?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8YWJvdXQlMjB1c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60" alt="about us" width="25%"/> */}
+                <img src="https://images.unsplash.com/photo-1577563908411-5077b6dc7624?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8YWJvdXQlMjB1c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60" alt="about us" width="123px" height='100px'/>
                 <Typography mb="30px">Careers</Typography>
                 <Typography mb="30px">Our Stores</Typography>
                 <Typography mb="30px">Terms & Policy</Typography>
@@ -57,20 +57,20 @@ function Footer() {
                 <Typography variant="h4" fontWeight="bold" mb="30px">
                     Customer Care
                 </Typography>
-                {/* <img src="https://images.unsplash.com/photo-1553775282-20af80779df7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8Y3VzdG9tZXIlMjBjYXJlfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="about us" width="25%"/> */}
+                <img src="https://images.unsplash.com/photo-1553775282-20af80779df7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8Y3VzdG9tZXIlMjBjYXJlfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="about us" width="123px" height='100px'/>
                 <Typography mb="30px">Help Center</Typography>
                 <Typography mb="30px">Track Your Order</Typography>
                 <Typography mb="30px">Return & Refund</Typography>
             </Box>
 
-            <Box width="clamp(20%, 25%, 30%)" textAlign="center" color={shades.neutral[500]}>
+            <Box maxWidth='15%' textAlign="center" color={shades.neutral[500]}>
                 <Typography variant="h4" fontWeight="bold" mb="30px">
                     Contact Us
                 </Typography>
-                {/* <img src="https://images.unsplash.com/photo-1586769852044-692d6e3703f0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fGNvbnRhY3QlMjB1c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60" alt="about us" width="25%"/> */}
-                <Typography mb="30px">6181 Old Dobbin Ln Ste 200, Columbia, MD 21045</Typography>
-                <Typography mb="30px">Email: theflatburger@placeaburger.com</Typography>
-                <Typography mb="30px">(444)555-9999</Typography>
+                <img src="https://images.unsplash.com/photo-1586769852044-692d6e3703f0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fGNvbnRhY3QlMjB1c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60" alt="about us" width="123px" height='100px'/>
+                <Typography mb="30px" maxWidth='90%' ml='10px'>6181 Old Dobbin Ln Ste 200, Columbia, MD 21045</Typography>
+                <Typography mb="30px" maxWidth='90%' ml='10px'>Email: flatburger@burger.com</Typography>
+                <Typography mb="30px" maxWidth='90%' ml='10px'>(444) 555-9999</Typography>
             </Box>
         </Box>
     </Box>
