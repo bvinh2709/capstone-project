@@ -17,11 +17,12 @@ import Footer from "./scenes/global/Footer";
 import SignUp from "./scenes/global/SignUp";
 import Login from "./scenes/global/Login";
 import Profile from "./scenes/global/Profile";
-import CheckOutStripe from "./scenes/checkout/CheckOutStripe";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
+import axios from 'axios'
+// import CheckOutStripe from "./scenes/checkout/CheckOutStripe";
+// import { loadStripe } from "@stripe/stripe-js";
+// import { Elements } from "@stripe/react-stripe-js";
 
-const stripePromise = loadStripe("pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y")
+// const stripePromise = loadStripe("pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y")
 
 const ScrollToTop = () => {
   const {pathname} = useLocation()
@@ -37,25 +38,25 @@ function App() {
 
   const [user, setUser] = useState(null)
   const [cartItems, setCartItems] = useState([])
-  const [clientSecret, setClientSecret] = useState("")
+  // const [clientSecret, setClientSecret] = useState("")
 
-  useEffect(() => {
-    fetch("http://localhost:5555/create-payment-intent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: [{ id: "xl-tshirt" }] }),
-    })
-      .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
-  }, []);
+  // useEffect(() => {
+  //   fetch("http://localhost:5555/create-payment-intent", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ items: [{ id: "xl-tshirt" }] }),
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => setClientSecret(data.clientSecret));
+  // }, []);
 
-  const appearance = {
-    theme: 'stripe',
-  };
-  const options = {
-    clientSecret,
-    appearance,
-  };
+  // const appearance = {
+  //   theme: 'stripe',
+  // };
+  // const options = {
+  //   clientSecret,
+  //   appearance,
+  // };
 
 
   function addToState(cartObj){
@@ -75,12 +76,12 @@ function App() {
   }, [])
 
   useEffect(()=> {
-    fetch('http://localhost:5555/orders')
+    fetch('/orders')
     .then(r => r.json())
     .then(data => setCartItems(data))
-  }, [])
+  }, [user?.id])
 
-  const totalCount = cartItems.filter(order => order.user?.id === user?.id).reduce((total, item) => {
+  const totalCount = cartItems.reduce((total, item) => {
     return total + item.item_count
   }, 0)
 
@@ -89,12 +90,18 @@ function App() {
   }
 
   function handleLogout() {
-      setUser(null);
+      axios.delete('/logout')
+      .then(response => {
+        setUser(null);
+      })
+      .catch(error => {
+        console.log(error)
+      })
   }
 
   function removeItem(doomedId) {
     const newList = cartItems
-    .filter(order => order.user?.id === user?.id)
+    // .filter(order => order.user?.id === user?.id)
     .filter(cartObj => {
       return cartObj.id !== doomedId
     })
@@ -132,7 +139,9 @@ function App() {
         cartItems={cartItems} totalCount={totalCount}
         user={user} removeItem={removeItem} countItemCount={countItemCount}
         />
-
+        {/* <Elements stripe={stripePromise} options={options}>
+          <CheckOutStripe />
+        </Elements> */}
         <Footer />
       </BrowserRouter>
     </div>

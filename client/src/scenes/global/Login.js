@@ -5,11 +5,6 @@ import { Box, Typography, Button, TextField, IconButton } from "@mui/material";
 function Login({handleLogin}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    // const [show, setShow] = useState(false)
-    // const [isOpen, setIsOpen] = useState(false);
-    // const handleShow = () => {
-    //     setShow(!show)
-    //   }
     const navigate = useNavigate()
 
     function handleSubmit(e) {
@@ -23,14 +18,9 @@ function Login({handleLogin}) {
         }).then((r) => {
             if (r.ok) {
                 r.json().then((user) => {
-                    console.log(user)
                     handleLogin(user) })
-
-                navigate('/')
+                    navigate('/')
             }
-            // else {
-            //     toggleModal()
-            // }
         });
     }
 

@@ -1,4 +1,4 @@
-import { useDispatch, useSelector } from "react-redux"
+import { useDispatch } from "react-redux"
 import { Badge, Box, IconButton, Menu, MenuItem, Button} from "@mui/material"
 import {
   PersonOutline,
@@ -13,14 +13,13 @@ import {
 } from '@mui/icons-material'
 
 import { useNavigate } from "react-router-dom"
-// import {shades} from "../../theme"
+
 import { setIsCartOpen } from "../../state"
 import {useState} from 'react'
 
-function Navbar({user, setUser, onLogout, totalCount}) {
+function Navbar({user, onLogout, totalCount}) {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  // const cart = useSelector((state) => state.cart.cart)
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
@@ -89,14 +88,12 @@ function Navbar({user, setUser, onLogout, totalCount}) {
               <div>
                 <IconButton
                   sx={{ color: 'white' }}
-                  // onClick={ handleLogout }
                   aria-controls="simple-menu"
                   aria-haspopup="true"
                   onClick={handleClick}
                 >
                     Welcome, {user?.first_name}
-                    {/* <LogoutOutlined />
-                    LogOut */}
+
                 </IconButton>
                 <Menu
 
@@ -105,12 +102,7 @@ function Navbar({user, setUser, onLogout, totalCount}) {
                   keepMounted
                   open={Boolean(anchorEl)}
                   onClose={handleClose}
-                  // PaperProps={{
-                  //   style: {
-                  //     backgroundColor: 'black',
 
-                  //   },
-                  // }}
                 >
                   <MenuItem onClick={handleClose} sx={{ color: 'white' }}>
                     <Button onClick={()=>navigate('/profile')}>
@@ -186,10 +178,7 @@ function Navbar({user, setUser, onLogout, totalCount}) {
               </Badge>
             )
           }
-            {/* <IconButton sx={{ color: 'white' }}>
-                <MenuOutlined />
-                Menu
-            </IconButton> */}
+
         </Box>
       </Box>
     </Box>

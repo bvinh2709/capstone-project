@@ -19,7 +19,7 @@ function ItemDetails({user, addToState, cartItems}) {
 
   async function getItem() {
     const item = await fetch(
-      `http://localhost:5555/items/${itemId}`,
+      `/items/${itemId}`,
       {method: 'GET'}
     )
     const itemJson = await item.json()
@@ -38,9 +38,6 @@ function ItemDetails({user, addToState, cartItems}) {
 
 //   const index = Math.floor(Math.random() * (items.length - 2))
 
-  const something = [...cartItems].map((item) => item.item_id)
-  console.log(something)
-
 
   useEffect(() => {
     getItem()
@@ -49,7 +46,7 @@ function ItemDetails({user, addToState, cartItems}) {
 
   function handleAddToCart(e) {
     e.preventDefault()
-    console.log('added to cart')
+
     fetch('/orders', {
         method: "POST",
         headers: {

@@ -1,9 +1,10 @@
-from flask import Flask, make_response, jsonify, request, session
+from flask import Flask, make_response, jsonify, request, session, flash
 from flask_restful import Resource, reqparse
 import stripe
 import json
 from config import app, db, api, bcrypt
 from models import User, Item, Order
+import re
 
 class HomePage(Resource):
     def get(self):
@@ -40,18 +41,18 @@ class SignUp(Resource):
         lastname = request.json['last_name']
         dob = request.json['dob']
 
-        user_exists = User.query.filter(User.email == email).first() is not None
+        # user_exists = User.query.filter(User.email == email).first() is not None
 
-        if user_exists:
+        if email in [u.email for u in User.query.all()]:
+            flash('Username already taken!')
             return jsonify({"error": "There is already a user with this name"}), 409
 
         hashed_password = bcrypt.generate_password_hash(password)
-        hashed_password_confirmation = bcrypt.generate_password_hash(password_confirmation)
 
         new_user = User(
             email = email,
             _password_hash = hashed_password,
-            password_confirmation = hashed_password_confirmation,
+            password_confirmation = password_confirmation,
             first_name = firstname,
             last_name = lastname,
             dob = dob
@@ -79,7 +80,7 @@ class Login(Resource):
 
 class Logout(Resource):
     def delete(self):
-        session.pop("user_id", None)
+        session["user_id"] = None
 
         return {}, 204
 
@@ -94,7 +95,6 @@ class CheckSession(Resource):
 
 class ClearSession(Resource):
     def delete(self):
-        session['page_views'] = None
         session['user_id'] = None
         return {}, 204
 
@@ -185,7 +185,8 @@ class ItemByID(Resource):
 
 class Orders(Resource):
     def get(self):
-        return make_response([o.to_dict() for o in Order.query.all()], 200)
+        user_id = session['user_id']
+        return make_response([o.to_dict() for o in Order.query.filter(Order.user_id == user_id).all()], 200)
 
     def post(self):
         data = request.get_json()
@@ -249,25 +250,40 @@ def calculate_order_amount(items):
         return items
     return sum(items) * 100
 
-class CreatePayment(Resource):
-    def post(self):
-        try:
-            data = json.loads(request.data)
-            # Create a PaymentIntent with the order amount and currency
-            intent = stripe.PaymentIntent.create(
-                amount=calculate_order_amount(data['items']),
-                currency='usd',
-                automatic_payment_methods={
-                    'enabled': True,
-                },
-            )
-            return jsonify({
-                'clientSecret': intent['client_secret']
-            })
-        except Exception as e:
-            return jsonify(error=str(e)), 403
+# class CreatePayment(Resource):
+#     def post(self):
+#         try:
+#             data = json.loads(request.data)
+#             # Create a PaymentIntent with the order amount and currency
+#             intent = stripe.PaymentIntent.create(
+#                 amount=calculate_order_amount(data['items']),
+#                 currency='usd',
+#                 automatic_payment_methods={
+#                     'enabled': True,
+#                 },
+#             )
+#             return jsonify({
+#                 'clientSecret': intent['client_secret']
+#             })
+#         except Exception as e:
+#             return jsonify(error=str(e)), 403
 
-api.add_resource(CreatePayment, '/create-payment-intent')
+class CheckEmail(Resource):
+    def get(self):
+        email = request.args.get("email")
+        if email:
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                return {"error": "Invalid email address"}, 400
+            # Check if email exists in the database
+            user = User.query.filter_by(email=email).first()
+            if user:
+                return {"isUnique": False}
+            return {"isUnique": True}
+        return {"error": "Email not provided"}, 400
+
+api.add_resource(CheckEmail, "/check-email")
+
+# api.add_resource(CreatePayment, '/create-payment-intent')
 api.add_resource(HomePage, '/', endpoint='home-page')
 api.add_resource(SignUp, '/signup', endpoint='signup')
 api.add_resource(Login, '/login', endpoint='login')

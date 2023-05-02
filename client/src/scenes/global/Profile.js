@@ -10,6 +10,7 @@ function Profile({user}) {
       <Typography variant='h4' m='10px'>Name: {user && user.first_name} {user && user.last_name}</Typography>
       <Typography variant='h4' m='10px'>Email: {user && user.email}</Typography>
       <Typography variant='h4' m='10px'>Birthday: {user && user.dob}</Typography>
+      <Typography variant='h4' m='10px'>Point: {user && user.points}</Typography>
     </Box>
   )
 }

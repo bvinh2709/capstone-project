@@ -1,8 +1,8 @@
-"""reseeded table
+"""reseeding3
 
-Revision ID: 24c66a2b66a8
+Revision ID: 5eadd21b1b1d
 Revises: 
-Create Date: 2023-04-21 16:30:30.905493
+Create Date: 2023-05-01 23:33:01.685336
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '24c66a2b66a8'
+revision = '5eadd21b1b1d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,6 +26,7 @@ def upgrade():
     sa.Column('description', sa.String(), nullable=False),
     sa.Column('in_stock', sa.Boolean(), nullable=False),
     sa.Column('price', sa.Float(), nullable=False),
+    sa.CheckConstraint('price > 0'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('users',
@@ -36,10 +37,13 @@ def upgrade():
     sa.Column('first_name', sa.String(), nullable=False),
     sa.Column('last_name', sa.String(), nullable=False),
     sa.Column('dob', sa.String(), nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.Column('points', sa.Integer(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email')
     )
     op.create_table('orders',
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('item_count', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('item_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['item_id'], ['items.id'], name=op.f('fk_orders_item_id_items')),

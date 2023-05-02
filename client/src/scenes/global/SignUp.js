@@ -3,7 +3,7 @@ import {useNavigate} from 'react-router-dom'
 import { Box, Typography, Button, TextField, IconButton} from "@mui/material";
 import {useFormik} from "formik"
 import * as yup from "yup"
-import { ConstructionOutlined, LunchDiningOutlined} from "@mui/icons-material";
+import { LunchDiningOutlined} from "@mui/icons-material";
 // import Visibility from '@mui/icons-material/Visibility';
 // import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
@@ -14,15 +14,20 @@ function SignUp({ setUser }) {
         email: yup
         .string()
         .email("Invalid email")
+        .test("uniqueEmail", "Email already exists", async (value) => {
+            const response = await fetch(`/check-email?email=${value}`);
+            const data = await response.json();
+            return data.isUnique;
+          })
         .required('required'),
         password: yup
         .string()
         .required('required')
-        .min(10, 'Password must be 10 characters long')
-        .matches(/[0-9]/, 'Password requires a number')
-        .matches(/[a-z]/, 'Password requires a lowercase letter')
-        .matches(/[A-Z]/, 'Password requires an uppercase letter')
-        .matches(/[^\w]/, 'Password requires a symbol'),
+        .min(1, 'Password must be 10 characters long'),
+        // .matches(/[0-9]/, 'Password requires a number')
+        // .matches(/[a-z]/, 'Password requires a lowercase letter')
+        // .matches(/[A-Z]/, 'Password requires an uppercase letter')
+        // .matches(/[^\w]/, 'Password requires a symbol'),
         password_confirmation: yup
         .string()
         .required('required')
@@ -59,9 +64,12 @@ function SignUp({ setUser }) {
             }).then((r) => {
                 if (r.ok) {
                     r.json().then((user) => console.log(user));
+                    navigate('/login')
+                } else {
+                    alert('something is wrong')
                 }
             });
-            navigate('/login')
+
         },
     });
 

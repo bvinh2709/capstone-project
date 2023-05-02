@@ -5,15 +5,16 @@ from config import db, bcrypt
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    serialize_rules = ('orders',)
+    serialize_rules = ('orders', '-_password_hash', '-password_confirmation',)
 
     id = db.Column(db.Integer, primary_key = True)
-    email = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False, unique=True)
     _password_hash = db.Column(db.String, nullable=False)
     password_confirmation = db.Column(db.String, nullable=False)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
     dob = db.Column(db.String, nullable=False)
+    points = db.Column(db.Integer, default=0)
 
     orders = db.relationship('Order', backref='user')
 
@@ -47,9 +48,13 @@ class Item(db.Model, SerializerMixin):
     image = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     in_stock = db.Column(db.Boolean, nullable=False)
-    price = db.Column(db.Float, nullable=False)
+    price = db.Column(db.Float, db.CheckConstraint('price > 0'), nullable=False)
 
     orders = db.relationship('Order', backref='item')
+
+    __table_args__ = (
+        db.CheckConstraint('price > 0'),
+    )
 
 
 class Order(db.Model, SerializerMixin):

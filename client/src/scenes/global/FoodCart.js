@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React from 'react'
 import { Box, Button, Divider, IconButton, Typography } from '@mui/material'
 import { useSelector, useDispatch } from 'react-redux'
 import CloseIcon from "@mui/icons-material/Close"
@@ -28,7 +28,9 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
     // const cart = useSelector((state) => state.cart.cart)
     const isCartOpen = useSelector((state) => state.cart.isCartOpen)
 
-    const totalPrice = cartItems.filter(order => order.user?.id === user?.id).reduce((total, item) => {
+    const totalPrice = cartItems
+    // .filter(order => order.user?.id === user?.id)
+    .reduce((total, item) => {
         return total + item.item_count * item.item.price
     }, 0)
 
@@ -39,7 +41,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
 
     function handleDelete(id) {
             (removeItem(id))
-            fetch(`http://localhost:5555/orders/${id}`, {
+            fetch(`/orders/${id}`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' }
             })
@@ -48,7 +50,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
     function plusQuantity(id, item_count) {
         console.log('added 1')
         const newCount = item_count + 1
-        fetch(`http://localhost:5555/orders/${id}`, {
+        fetch(`/orders/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ item_count: newCount})
@@ -66,7 +68,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
         console.log('minus 1')
         if (item_count > 1) {
             const newCount = item_count - 1;
-            fetch(`http://localhost:5555/orders/${id}`, {
+            fetch(`/orders/${id}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ item_count: newCount })
@@ -118,7 +120,6 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
                 {user ? (
                 <Box>
                 {cartItems
-                    .filter(order => order.user?.id === user?.id)
                     .map((order, index) => (
                         <Box key={order.item.id}>
                             <FlexBox p="15px 0" display="flex" justifyContent= "space-between" alignItems="center">
