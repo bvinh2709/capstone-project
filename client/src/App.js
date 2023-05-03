@@ -18,11 +18,12 @@ import SignUp from "./scenes/global/SignUp";
 import Login from "./scenes/global/Login";
 import Profile from "./scenes/global/Profile";
 import axios from 'axios'
+import CheckoutFail from "./scenes/checkout/CheckoutFail";
 // import CheckOutStripe from "./scenes/checkout/CheckOutStripe";
-// import { loadStripe } from "@stripe/stripe-js";
-// import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 
-// const stripePromise = loadStripe("pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y")
+const stripePromise = loadStripe("pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y")
 
 const ScrollToTop = () => {
   const {pathname} = useLocation()
@@ -128,8 +129,13 @@ function App() {
         <Routes>
           <Route path="/" element={<Home user={user} addToState={addToState}/>} />
           <Route path="items/:itemId" element={<ItemDetails cartItems={cartItems} user={user} addToState={addToState}/>} />
-          <Route path="checkout" element={<Checkout cartItems={cartItems} user={user}/>} />
+          <Route path="/checkout" element={
+          <Elements stripe={stripePromise}>
+            <Checkout cartItems={cartItems}/>
+          </Elements>
+        } />
           <Route path="checkout/success" element={<Confirmation />} />
+          <Route path='checkout/fail' element={<CheckoutFail />} />
           <Route path="/login" element={<Login handleLogin={handleLogin}/>} />
           <Route path="/signup" element={<SignUp user={user} setUser={setUser}/>} />
           <Route path='/profile' element={<Profile user={user} />} />

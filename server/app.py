@@ -5,6 +5,7 @@ import json
 from config import app, db, api, bcrypt
 from models import User, Item, Order
 import re
+import time
 
 class HomePage(Resource):
     def get(self):
@@ -186,7 +187,7 @@ class ItemByID(Resource):
 class Orders(Resource):
     def get(self):
         user_id = session['user_id']
-        return make_response([o.to_dict() for o in Order.query.filter(Order.user_id == user_id).all()], 200)
+        return make_response([o.to_dict() for o in Order.query.filter(Order.user_id == user_id, Order.status != 'completed').all()], 200)
 
     def post(self):
         data = request.get_json()
@@ -238,7 +239,6 @@ class ClearCart(Resource):
 
         return {'message': 'cart is clear'}, 200
 
-stripe.api_key = 'sk_test_51MzBCeHMeLOzkmO2brW3gQ3hOO9P9tOSTK9u5p6uZgQdngTeOT76iCtUbN3zQ8R3NneVuIbVQaoVmEs7JNPIaFl800L0j5ysWq'
 
 def calculate_order_amount(items):
     user_id = session['user_id']
@@ -250,30 +250,13 @@ def calculate_order_amount(items):
         return items
     return sum(items) * 100
 
-# class CreatePayment(Resource):
-#     def post(self):
-#         try:
-#             data = json.loads(request.data)
-#             # Create a PaymentIntent with the order amount and currency
-#             intent = stripe.PaymentIntent.create(
-#                 amount=calculate_order_amount(data['items']),
-#                 currency='usd',
-#                 automatic_payment_methods={
-#                     'enabled': True,
-#                 },
-#             )
-#             return jsonify({
-#                 'clientSecret': intent['client_secret']
-#             })
-#         except Exception as e:
-#             return jsonify(error=str(e)), 403
-
+stripe.api_key = 'sk_test_51MzBCeHMeLOzkmO2brW3gQ3hOO9P9tOSTK9u5p6uZgQdngTeOT76iCtUbN3zQ8R3NneVuIbVQaoVmEs7JNPIaFl800L0j5ysWq'
 YOUR_DOMAIN = 'http://localhost:3000'
 
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     user_id = session['user_id']
-    cart_items = Order.query.filter(Order.user_id == user_id).all()
+    cart_items = Order.query.filter(Order.user_id == user_id, Order.status != 'completed').all()
     line_items = []
     user_email = User.query.filter(User.id == user_id).first().email
     for item in cart_items:
@@ -287,9 +270,16 @@ def create_checkout_session():
             line_items=line_items,
             mode='payment',
             success_url=YOUR_DOMAIN + '/checkout/success',
-            cancel_url=YOUR_DOMAIN + '?canceled=true',
+            cancel_url=YOUR_DOMAIN + '/checkout/fail',
         )
+        if checkout_session.payment_status == 'paid':
+            for item in cart_items:
+                item.status = 'completed'
+            db.session.commit()
+
+
     except Exception as e:
+        db.session.rollback()
         return str(e)
 
     return redirect(checkout_session.url, code=303)
@@ -309,7 +299,7 @@ class CheckEmail(Resource):
 
 api.add_resource(CheckEmail, "/check-email")
 
-# api.add_resource(CreatePayment, '/create-payment-intent')
+
 api.add_resource(HomePage, '/', endpoint='home-page')
 api.add_resource(SignUp, '/signup', endpoint='signup')
 api.add_resource(Login, '/login', endpoint='login')
@@ -323,7 +313,6 @@ api.add_resource(ItemByID, '/items/<int:id>')
 api.add_resource(Orders, '/orders', endpoint='orders')
 api.add_resource(OrderByID, '/orders/<int:id>')
 api.add_resource(ClearCart, '/clearcart', endpoint='clearcart')
-# api.add_resource(CreateCheckoutSession, '/create-checkout-session')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

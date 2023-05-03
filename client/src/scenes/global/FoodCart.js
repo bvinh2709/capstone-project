@@ -24,13 +24,9 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
-
-    // const cart = useSelector((state) => state.cart.cart)
     const isCartOpen = useSelector((state) => state.cart.isCartOpen)
 
-    const totalPrice = cartItems
-    // .filter(order => order.user?.id === user?.id)
-    .reduce((total, item) => {
+    const totalPrice = cartItems.reduce((total, item) => {
         return total + item.item_count * item.item.price
     }, 0)
 
