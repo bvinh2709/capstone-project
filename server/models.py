@@ -49,6 +49,7 @@ class Item(db.Model, SerializerMixin):
     description = db.Column(db.String, nullable=False)
     in_stock = db.Column(db.Boolean, nullable=False)
     price = db.Column(db.Float, db.CheckConstraint('price > 0'), nullable=False)
+    price_id = db.Column(db.String)
 
     orders = db.relationship('Order', backref='item')
 

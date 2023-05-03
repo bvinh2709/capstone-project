@@ -82,7 +82,6 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
         }
       }
 
-
   return (
     <Box
         display={isCartOpen ? "block" : "none"}
@@ -238,6 +237,7 @@ function FoodCart({cartItems, totalCount, user, setCartItems, removeItem, countI
                 )}
             </Box>
         </Box>
+
     </Box>
   )
 }

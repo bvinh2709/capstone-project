@@ -1,8 +1,8 @@
-"""reseeding3
+"""adding price_id
 
-Revision ID: 5eadd21b1b1d
+Revision ID: f96afc082697
 Revises: 
-Create Date: 2023-05-01 23:33:01.685336
+Create Date: 2023-05-03 00:33:09.002861
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5eadd21b1b1d'
+revision = 'f96afc082697'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,6 +26,7 @@ def upgrade():
     sa.Column('description', sa.String(), nullable=False),
     sa.Column('in_stock', sa.Boolean(), nullable=False),
     sa.Column('price', sa.Float(), nullable=False),
+    sa.Column('price_id', sa.String(), nullable=True),
     sa.CheckConstraint('price > 0'),
     sa.PrimaryKeyConstraint('id')
     )

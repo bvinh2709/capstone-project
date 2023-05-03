@@ -1,4 +1,4 @@
-from flask import Flask, make_response, jsonify, request, session, flash
+from flask import Flask, make_response, jsonify, request, session, flash, redirect
 from flask_restful import Resource, reqparse
 import stripe
 import json
@@ -267,6 +267,32 @@ def calculate_order_amount(items):
 #             })
 #         except Exception as e:
 #             return jsonify(error=str(e)), 403
+
+YOUR_DOMAIN = 'http://localhost:3000'
+
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    user_id = session['user_id']
+    cart_items = Order.query.filter(Order.user_id == user_id).all()
+    line_items = []
+    user_email = User.query.filter(User.id == user_id).first().email
+    for item in cart_items:
+        line_items.append({
+            'price': item.item.price_id,
+            'quantity': item.item_count,
+        })
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            customer_email=user_email,
+            line_items=line_items,
+            mode='payment',
+            success_url=YOUR_DOMAIN + '/checkout/success',
+            cancel_url=YOUR_DOMAIN + '?canceled=true',
+        )
+    except Exception as e:
+        return str(e)
+
+    return redirect(checkout_session.url, code=303)
 
 class CheckEmail(Resource):
     def get(self):

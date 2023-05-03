@@ -9,7 +9,7 @@ import { loadStripe } from "@stripe/stripe-js"
 import { useNavigate } from 'react-router'
 
 const stripePromise = loadStripe(
-  // "pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y"
+  "pk_test_51MzBCeHMeLOzkmO2oquNeE2qRlVVPRv7qkZlN9OckRbm1gPUnPOUM50f2HSlcCGS66lLwMiqoIBgQWvR6WCgNxBY00WW1shy8y"
 )
 
 const initialValues = {
@@ -110,13 +110,13 @@ function Checkout({cartItems, user}) {
     const requestBody = {
       userName: [values.firstName, values.lastName].join(' '),
       email: values.email,
-      products: cartItems.filter(object => object.user?.id === user?.id).map(( {id, count }) => ({
+      products: cartItems.map(( {id, count }) => ({
         id,
         count,
       }))
     }
 
-    const response = await fetch('http://localhost:5555/orders', {
+    const response = await fetch('/orders', {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody)
@@ -176,7 +176,7 @@ function Checkout({cartItems, user}) {
               <Box display="flex" justifyContent="space-between" gap="50px">
                 {!isFirstStep && (
                   <Button
-                    fullWidth
+                    width='100%'
                     color="primary"
                     varian="contained"
                     sx={{
@@ -210,12 +210,17 @@ function Checkout({cartItems, user}) {
                     </Button>
 
                 ) : (
+
+                  <form
+
+                  action="/create-checkout-session" method="POST"
+                  >
                   <Button
-                    onClick={()=>navigate('/checkout/success')}
+                    // onClick={()=>navigate('/checkout/success')}
                     fullWidth
                     type="submit"
                     color="primary"
-                    varian="contained"
+                    variant="contained"
                     sx={{
                       backgroundColor: shades.primary[400],
                       boxShadow: "none",
@@ -223,10 +228,11 @@ function Checkout({cartItems, user}) {
                       borderRadius: 0,
                       padding: "15px 40px"
                     }}
-                    // onClick={()=> setActiveStep(activeStep - 1)}
                   >
                     Place Order
                     </Button>
+                  </form>
+
                 )
               }
               </Box>
