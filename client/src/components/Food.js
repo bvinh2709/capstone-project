@@ -1,18 +1,36 @@
-import React, {useState} from 'react'
-// import { useDispatch } from 'react-redux'
-import { IconButton, Box, Typography, useTheme, Button } from '@mui/material'
+import React, {useState, useEffect} from 'react'
+import {
+    IconButton, Box, Typography, useTheme, Button, Stack,
+    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+} from '@mui/material'
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
 import { shades } from '../theme'
-// import { addToCart } from '../state'
 import { useNavigate } from 'react-router-dom'
 
 function Food({item, width, user, addToState}) {
-
-    const navigate = useNavigate()
-    // const dispatch = useDispatch()
+    const [isOpen, setIsOpen] = useState(false);
+    const [modalItems, setModalItems] = useState([])
     const [count, setCount] = useState(1)
     const [isHovered, setIsHovered] = useState(false)
+    const navigate = useNavigate()
+
+    useEffect(()=>{
+        fetch(`/items`)
+        .then(r=>r.json())
+        .then(data => {
+            setModalItems(data)
+
+        })
+    }, [])
+
+    const modalUsers = modalItems.flatMap((item)=> item.users)
+    const modalUserNames = [...new Set(modalUsers.map(user => user.first_name))]
+    // console.log(modalUsers)
+
+    const handleClose = () => {
+        setIsOpen(false);
+      };
 
     const {
         palette: { neutral },
@@ -20,8 +38,6 @@ function Food({item, width, user, addToState}) {
 
     function handleAddToCart(e) {
         e.preventDefault()
-        console.log('added to cart')
-        // dispatch(addToCart({ item: {...item, count}}))
         fetch('/orders', {
             method: "POST",
             headers: {
@@ -36,19 +52,15 @@ function Food({item, width, user, addToState}) {
         .then((r) => {
           if (r.ok) {
             r.json().then( newObj => {
-              console.log(newObj)
               addToState(newObj)
-
+                setIsOpen(true)
             })
           } else {
             alert('POST didnt work')
           }
         })
     }
-    // .then((response) => {
-    //     if (response.ok) {
-    //         response.json().then((user) =>
-    //         setUser(user));
+  
 
     return (
         <Box width={width}>
@@ -113,6 +125,25 @@ function Food({item, width, user, addToState}) {
                     <Typography>{item.name}</Typography>
                     <Typography fontWeight="bold">${item.price}</Typography>
                 </Box>
+                <Dialog open={isOpen} onClose={handleClose}>
+                    <DialogTitle>Great choice!</DialogTitle>
+                    <DialogContent>
+                    {modalUserNames.length > 0 && (
+                        modalUserNames.map((name) => (
+                            <DialogContentText>
+                                {name} is ordering the same thing
+                            </DialogContentText>
+                        ))
+                    )}
+                    </DialogContent>
+                    <DialogActions sx={{ justifyContent: 'center' }}>
+                        <Stack direction="row" spacing={2}>
+                            <Button onClick={handleClose} variant="contained" autoFocus>
+                            OK! Great!!
+                            </Button>
+                        </Stack>
+                    </DialogActions>
+                </Dialog>
         </Box>
     )
 }

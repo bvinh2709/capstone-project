@@ -1,11 +1,12 @@
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.hybrid import hybrid_property
 from config import db, bcrypt
+from sqlalchemy.ext.associationproxy import association_proxy
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
 
-    serialize_rules = ('orders', '-_password_hash', '-password_confirmation',)
+    serialize_rules = ('-orders', '-_password_hash', '-password_confirmation',)
 
     id = db.Column(db.Integer, primary_key = True)
     email = db.Column(db.String, nullable=False, unique=True)
@@ -17,7 +18,7 @@ class User(db.Model, SerializerMixin):
     points = db.Column(db.Integer, default=0)
 
     orders = db.relationship('Order', backref='user')
-
+    items = association_proxy('orders', 'item')
     @hybrid_property
     def password_hash(self):
         raise Exception('Password hashes may not be viewed.')
@@ -40,7 +41,7 @@ class User(db.Model, SerializerMixin):
 class Item(db.Model, SerializerMixin):
     __tablename__ = 'items'
 
-    serialize_rules = ('-orders',)
+    serialize_rules = ('users', 'orders', '-orders.item',)
 
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String, nullable=False)
@@ -52,6 +53,7 @@ class Item(db.Model, SerializerMixin):
     price_id = db.Column(db.String)
 
     orders = db.relationship('Order', backref='item')
+    users = association_proxy('orders', 'user')
 
     __table_args__ = (
         db.CheckConstraint('price > 0'),
@@ -61,7 +63,7 @@ class Item(db.Model, SerializerMixin):
 class Order(db.Model, SerializerMixin):
     __tablename__ = 'orders'
 
-    serialize_rules = ('-user.orders', '-user.items')
+    serialize_rules = ('-item.orders', '-user._password_hash', '-user.password_confirmation',)
 
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)

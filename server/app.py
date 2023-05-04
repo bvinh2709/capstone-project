@@ -5,32 +5,18 @@ import json
 from config import app, db, api, bcrypt
 from models import User, Item, Order
 import re
-import time
+
+
+# @app.before_request
+# def check_if_logged_in():
+#     if not session.get('user_id'):
+#         return {'error': 'Unauthorized, Please log in'}, 401
+
 
 class HomePage(Resource):
     def get(self):
         return {'message': '200: Welcome to our Home Page'}, 200
 
-# class CreateCheckoutSession(Resource):
-#     def post(self):
-#         parser = reqparse.RequestParser()
-#         parser.add_argument('price_id', type=str, required=True)
-#         args = parser.parse_args()
-#         try:
-#             checkout_session = stripe.checkout.Session.create(
-#                 line_items=[
-#                 {'price': args['price_id'],
-#                     'quantity': 1,
-#                 },
-#                 ],
-#                 mode="payment",
-#                 success_url = YOUR_DOMAIN + '?success=true',
-#                 cancel_url=YOUR_DOMAIN + '?canceled=true',
-#             )
-#         except stripe.error.StripeError as e:
-#             return {'message': str(e)}, 400
-
-#         return {'checkout_url': checkout_session.url}, 201
 
 
 class SignUp(Resource):
@@ -81,13 +67,13 @@ class Login(Resource):
 
 class Logout(Resource):
     def delete(self):
-        session["user_id"] = None
+        session.get('user_id') == None
 
         return {}, 204
 
 class CheckSession(Resource):
     def get(self):
-        user_id = session['user_id']
+        user_id = session.get('user_id')
         if user_id:
             user = User.query.filter(User.id == user_id).first()
             return user.to_dict(), 200
@@ -96,12 +82,13 @@ class CheckSession(Resource):
 
 class ClearSession(Resource):
     def delete(self):
-        session['user_id'] = None
+        session.get('user_id') == None
         return {}, 204
 
 class Users(Resource):
     def get(self):
-        return make_response([u.to_dict() for u in User.query.all()], 200)
+        users = [u.to_dict() for u in User.query.all()]
+        return make_response(users, 200)
 
 class UserByID(Resource):
     def get(self, id):
@@ -136,7 +123,22 @@ class UserByID(Resource):
 
 class Items(Resource):
     def get(self):
-        return make_response([i.to_dict() for i in Item.query.all()], 200)
+        # items = []
+        # for item in Item.query.all():
+        #     i= {
+        #         "id": item.id,
+        #         "name": item.name,
+        #         "category": item.category,
+        #         "image": item.image,
+        #         "description": item.description,
+        #         "in_stock": item.in_stock,
+        #         "price": item.price,
+        #         "price_id": item.price_id,
+        #         # 'users': item.users
+        #     }
+        #     items.append(i)
+        items = [i.to_dict() for i in Item.query.all()]
+        return make_response(items, 200)
 
     def post(self):
         data = request.get_json()
@@ -186,7 +188,9 @@ class ItemByID(Resource):
 
 class Orders(Resource):
     def get(self):
-        user_id = session['user_id']
+        user_id = session.get('user_id')
+        if not user_id:
+            return make_response({'error': 'please log in'}, 401)
         return make_response([o.to_dict() for o in Order.query.filter(Order.user_id == user_id, Order.status != 'completed').all()], 200)
 
     def post(self):
@@ -233,7 +237,7 @@ class OrderByID(Resource):
 
 class ClearCart(Resource):
     def get(self):
-        user_id = session['user_id']
+        user_id = session.get('user_id')
         db.session.query(Order).filter(Order.user_id == user_id).delete()
         db.session.commit()
 
@@ -241,7 +245,7 @@ class ClearCart(Resource):
 
 
 def calculate_order_amount(items):
-    user_id = session['user_id']
+    user_id = session.get('user_id')
     items = []
     if user_id:
         item_count_list = [order.item_count for order in Order.query.filter(Order.user_id == user_id).all()]
@@ -255,7 +259,7 @@ YOUR_DOMAIN = 'http://localhost:3000'
 
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
-    user_id = session['user_id']
+    user_id = session.get('user_id')
     cart_items = Order.query.filter(Order.user_id == user_id, Order.status != 'completed').all()
     line_items = []
     user_email = User.query.filter(User.id == user_id).first().email
