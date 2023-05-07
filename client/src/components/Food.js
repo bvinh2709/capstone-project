@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState} from 'react'
 import {
     IconButton, Box, Typography, useTheme, Button, Stack,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
@@ -10,23 +10,10 @@ import { useNavigate } from 'react-router-dom'
 
 function Food({item, width, user, addToState}) {
     const [isOpen, setIsOpen] = useState(false);
-    const [modalItems, setModalItems] = useState([])
+    const [modalUsers, setModalUsers] = useState([])
     const [count, setCount] = useState(1)
     const [isHovered, setIsHovered] = useState(false)
     const navigate = useNavigate()
-
-    useEffect(()=>{
-        fetch(`/items`)
-        .then(r=>r.json())
-        .then(data => {
-            setModalItems(data)
-
-        })
-    }, [])
-
-    const modalUsers = modalItems.flatMap((item)=> item.users)
-    const modalUserNames = [...new Set(modalUsers.map(user => user.first_name))]
-    // console.log(modalUsers)
 
     const handleClose = () => {
         setIsOpen(false);
@@ -54,13 +41,19 @@ function Food({item, width, user, addToState}) {
             r.json().then( newObj => {
               addToState(newObj)
                 setIsOpen(true)
+                fetch(`/items/${item.id}`)
+                .then(r=>r.json())
+                .then(data => {
+                    setModalUsers(data.users)
+                })
             })
           } else {
             alert('POST didnt work')
           }
         })
     }
-  
+
+    const itemUsers = [...new Set(modalUsers.map(user => user.first_name))]
 
     return (
         <Box width={width}>
@@ -128,8 +121,8 @@ function Food({item, width, user, addToState}) {
                 <Dialog open={isOpen} onClose={handleClose}>
                     <DialogTitle>Great choice!</DialogTitle>
                     <DialogContent>
-                    {modalUserNames.length > 0 && (
-                        modalUserNames.map((name) => (
+                    {itemUsers.length > 0 && (
+                        itemUsers.map((name) => (
                             <DialogContentText>
                                 {name} is ordering the same thing
                             </DialogContentText>
