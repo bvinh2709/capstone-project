@@ -8,7 +8,7 @@ import RemoveIcon from "@mui/icons-material/Remove"
 import { shades } from '../theme'
 import { useNavigate } from 'react-router-dom'
 
-function Food({item, width, user, addToState}) {
+function Food({item, width, user, addToState, countItemCount, cartItems}) {
     const [isOpen, setIsOpen] = useState(false);
     const [modalUsers, setModalUsers] = useState([])
     const [count, setCount] = useState(1)
@@ -39,7 +39,7 @@ function Food({item, width, user, addToState}) {
         .then((r) => {
           if (r.ok) {
             r.json().then( newObj => {
-              addToState(newObj)
+                addToState(newObj)
                 setIsOpen(true)
                 fetch(`/items/${item.id}`)
                 .then(r=>r.json())
@@ -53,7 +53,21 @@ function Food({item, width, user, addToState}) {
         })
     }
 
-    const itemUsers = [...new Set(modalUsers.map(user => user.first_name))]
+    function plusQuantity(id, item_count) {
+        const newCount = item_count + count
+        fetch(`/orders/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_count: newCount})
+        })
+            .then(r => r.json())
+            .then(data => {
+                countItemCount(data)
+            })
+
+        }
+    const itemIdInCartItem = cartItems.map((item) => {return item.item_id})
+    const itemUsers = [...new Set(modalUsers.filter(modalUser => modalUser.first_name !== user?.first_name).map(modalUser => modalUser.first_name))]
 
     return (
         <Box width={width}>
@@ -103,7 +117,10 @@ function Food({item, width, user, addToState}) {
                         {/* BUTTON */}
                         <Button
                         type="submit"
-                        onClick={handleAddToCart}
+                        onClick={(itemIdInCartItem.includes(item?.id))
+                            ? () => plusQuantity(cartItems[cartItems.length - 1].id, cartItems[cartItems.length - 1].item_count)
+                            : handleAddToCart
+                          }
                         sx={{ backgroundColor: shades.primary[300], color: "white"}}
                         >
                         Add to Cart

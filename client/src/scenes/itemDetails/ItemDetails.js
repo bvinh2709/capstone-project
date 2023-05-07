@@ -1,17 +1,19 @@
 import React, {useState, useEffect} from 'react'
-import { IconButton, Box, Typography, Button, Tabs, Tab } from '@mui/material'
+import { IconButton, Box, Typography, Button, Tabs, Tab,
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack,
+} from '@mui/material'
 import AddIcon from "@mui/icons-material/Add"
 import RemoveIcon from "@mui/icons-material/Remove"
 import { shades } from '../../theme'
 import { useParams } from 'react-router-dom'
-// import Food from '../../components/Food'
 
-function ItemDetails({user, addToState, cartItems}) {
+function ItemDetails({user, addToState, cartItems, setCartItems, countItemCount}) {
   const { itemId } = useParams()
   const [value, setValue] = useState("description")
   const [count, setCount] = useState(1)
   const [item, setItem] = useState(null)
-  // const [items, setItems] = useState([])
+  const [isOpen, setIsOpen] = useState(false);
+  const [modalUsers, setModalUsers] = useState([])
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -26,27 +28,14 @@ function ItemDetails({user, addToState, cartItems}) {
     setItem(itemJson)
   }
 
-//   async function getItems() {
-//     const items = await fetch(
-//         "http://localhost:5555/items",
-//         {method: "GET"}
-//     )
+  const itemIdInCartItem = cartItems.map((item) => {return item.item_id})
 
-//     const itemsJson = await items.json()
-//     setItems(itemsJson)
-// }
-
-//   const index = Math.floor(Math.random() * (items.length - 2))
-
-
-  useEffect(() => {
-    getItem()
-    // getItems()
-  }, [])
+  const handleClose = () => {
+    setIsOpen(false);
+  };
 
   function handleAddToCart(e) {
     e.preventDefault()
-
     fetch('/orders', {
         method: "POST",
         headers: {
@@ -55,27 +44,47 @@ function ItemDetails({user, addToState, cartItems}) {
         body: JSON.stringify({
             item_count: count,
             user_id: user?.id,
-            item_id: item.id
+            item_id: itemId
         }),
     })
+
     .then((r) => {
       if (r.ok) {
-        r.json().then( newObj => {
-          console.log(newObj)
+        r.json().then((newObj) => {
           addToState(newObj)
-
+            setIsOpen(true)
+            fetch(`/items/${itemId}`)
+            .then(r=>r.json())
+            .then(data => {
+                setModalUsers(data.users)
+            })
         })
       } else {
         alert('POST didnt work')
       }
     })
 }
-// if (response.ok) {
-//   response.json().then((user) =>
-//   setUser(user));
-  // function handleAddSameItem() {
-  //   setCount(count + 1)
-  // }
+
+function plusQuantity(id, item_count) {
+  const newCount = item_count + count
+  fetch(`/orders/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item_count: newCount})
+  })
+      .then(r => r.json())
+      .then(data => {
+          countItemCount(data)
+      })
+
+  }
+
+  useEffect(() => {
+    getItem()
+  }, [])
+
+
+const itemUsers = [...new Set(modalUsers.filter(modalUser => modalUser.first_name !== user?.first_name).map(user => user.first_name))]
 
   return (
     <Box width="80%" m="80px auto">
@@ -125,17 +134,17 @@ function ItemDetails({user, addToState, cartItems}) {
               minWidth: "150px",
               padding: "10px 40px"
             }}
-            onClick={handleAddToCart}
+            onClick={(itemIdInCartItem.includes(item?.id))
+              ? () => plusQuantity(cartItems[cartItems.length - 1].id, cartItems[cartItems.length - 1].item_count)
+              : handleAddToCart
+            }
 
             >
               ADD TO CART
             </Button>
           </Box>
           <Box m="20px 0 5px 0" display="flex">
-            {/* <Box >
-              <FavoriteBorderOutlinedIcon />
-              <Typography sx={{ ml: "5px" }}>SAVE FOR LATER</Typography>
-            </Box> */}
+
             <Typography>CATERGORIES: {item?.category} </Typography>
           </Box>
         </Box>
@@ -143,7 +152,7 @@ function ItemDetails({user, addToState, cartItems}) {
       <Box m="20px 0">
         <Tabs value={value} onChange={handleChange}>
             <Tab label="DESCRIPTION" value="description" />
-            {/* <Tab label="REVIEWS" value="reviews" /> */}
+
         </Tabs>
       </Box>
       <Box display="flex" flexWrap="wrap" gap="15px">
@@ -151,23 +160,26 @@ function ItemDetails({user, addToState, cartItems}) {
           <div>{item?.description}</div>
         )}
       </Box>
-      {/* <Box mt="50px" width="100%">
-        <Typography variant="h3" fontWeight="bold">
-          Related Items
-        </Typography>
-        <Box
-          maxWidth="100%"
-          mt="20px"
-          display="flex"
-          flexWrap="wrap"
-          columnGap="1.33%"
-          justifyContent="space-between"
-        >
-          {items.slice(index, index + 3).map((item) => (
-            <Food key={item.id} item={item} user={user} addToState={addToState}/>
-          ))}
-        </Box>
-      </Box> */}
+
+      <Dialog open={isOpen} onClose={handleClose}>
+          <DialogTitle>Great choice!</DialogTitle>
+          <DialogContent>
+          {itemUsers.length > 0 && (
+              itemUsers.map((name) => (
+                  <DialogContentText>
+                      {name} is ordering the same thing
+                  </DialogContentText>
+              ))
+          )}
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: 'center' }}>
+              <Stack direction="row" spacing={2}>
+                  <Button onClick={handleClose} variant="contained" autoFocus>
+                  OK! Great!!
+                  </Button>
+              </Stack>
+          </DialogActions>
+      </Dialog>
     </Box>
   )
 }

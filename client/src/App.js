@@ -127,8 +127,12 @@ function App() {
         <Navbar user={user} setUser={setUser} onLogout={handleLogout} totalCount={totalCount}/>
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<Home user={user} addToState={addToState}/>} />
-          <Route path="items/:itemId" element={<ItemDetails cartItems={cartItems} user={user} addToState={addToState}/>} />
+          <Route path="/" element={<Home
+          user={user} addToState={addToState} countItemCount={countItemCount} cartItems={cartItems}/>} />
+          <Route path="items/:itemId" element={<ItemDetails
+          cartItems={cartItems} user={user} addToState={addToState}
+          setCartItems={setCartItems} countItemCount={countItemCount}/>}
+          />
           <Route path="/checkout" element={
           <Elements stripe={stripePromise}>
             <Checkout cartItems={cartItems}/>
