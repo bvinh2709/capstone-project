@@ -101,6 +101,33 @@ function Checkout() {
     actions.setTouched({})
   }
 
+  const handlePaymentResponse = (response) => {
+    if (response.status === 'succeeded') {
+      // Payment succeeded
+      console.log('Payment succeeded');
+      // Perform any additional actions, such as updating the order status on the frontend
+      // You can redirect the user to a success page or show a success message
+    } else if (response.status === 'failed') {
+      // Payment failed
+      console.log('Payment failed');
+      // Handle the failed payment scenario
+      // You can redirect the user to a failure page or show an error message
+    } else {
+      // Payment status unknown or other scenarios
+      console.log('Payment status unknown');
+      // Handle the unknown or other payment scenarios
+    }
+  };
+
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    // Simulate a payment response
+    const paymentResponse = {
+      status: 'succeeded', // Replace this with the actual payment status received from your backend
+    };
+    handlePaymentResponse(paymentResponse);
+  };
+
 
   return (
     <Box width="80%" m="100px auto">
@@ -146,6 +173,7 @@ function Checkout() {
                 handleBlur={handleBlur}
                 handleChange={handleChange}
                 setFieldValue={setFieldValue}
+                handlePaymentResponse={handlePaymentResponse}
                 />
               )}
               <Box display="flex" justifyContent="space-between" gap="50px">
@@ -186,7 +214,7 @@ function Checkout() {
                 ) : (
 
                   <form
-
+                  // onSubmit={handlePaymentSubmit}
                   action="/create-checkout-session" method="POST"
                   >
                   <Button

@@ -301,15 +301,11 @@ class ClearCart(Resource):
         return {'message': 'cart is clear'}, 200
 
 
-def calculate_order_amount(items):
-    user_id = session.get('user_id')
-    items = []
-    if user_id:
-        item_count_list = [order.item_count for order in Order.query.filter(Order.user_id == user_id).all()]
-        price_list = [order.item.price for order in Order.query.filter(Order.user_id == user_id).all()]
-        items = list(map(lambda x,y: x * y, item_count_list, price_list))
-        return items
-    return sum(items) * 100
+def calculate_order_amount(cart_items):
+    total_amount = 0
+    for item in cart_items:
+        total_amount += item.item_count * item.item.price
+    return int(total_amount * 100)
 
 stripe.api_key = 'sk_test_51MzBCeHMeLOzkmO2brW3gQ3hOO9P9tOSTK9u5p6uZgQdngTeOT76iCtUbN3zQ8R3NneVuIbVQaoVmEs7JNPIaFl800L0j5ysWq'
 YOUR_DOMAIN = 'http://localhost:3000'
@@ -333,10 +329,12 @@ def create_checkout_session():
             success_url=YOUR_DOMAIN + '/checkout/success',
             cancel_url=YOUR_DOMAIN + '/checkout/fail',
         )
-        # if checkout_session.payment_status == 'paid':
-        for item in cart_items:
-            item.status = 'completed'
-        db.session.commit()
+        print(checkout_session.status)
+        if checkout_session.status == 'complete':
+            print(checkout_session.status)
+            for item in cart_items:
+                item.status = 'completed'
+            db.session.commit()
 
 
     except Exception as e:
@@ -344,6 +342,37 @@ def create_checkout_session():
         return str(e)
 
     return redirect(checkout_session.url, code=303)
+
+@app.route('/webhook', methods=['POST'])
+def handle_webhook():
+    payload = request.get_data()
+    event = None
+    user_id = session.get('user_id')
+
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, request.headers.get('Stripe-Signature'), stripe.api_key
+        )
+    except ValueError as e:
+        return str(e), 400
+    except stripe.error.SignatureVerificationError as e:
+        return str(e), 400
+
+    # Handle the payment_intent.succeeded event
+    if event.type == 'payment_intent.succeeded':
+
+        print(event.type)
+
+        cart_items = Order.query.filter(Order.user_id == user_id, Order.status != 'completed').all()
+
+        for item in cart_items:
+            item.status = 'completed'
+        db.session.commit()
+
+    return '', 200
+
+    
 
 class CheckEmail(Resource):
     def get(self):
