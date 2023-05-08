@@ -141,7 +141,7 @@ function Food({item, width, user, addToState, countItemCount, cartItems}) {
                     {itemUsers.length > 0 && (
                         itemUsers.map((name) => (
                             <DialogContentText>
-                                {name} is ordering the same thing
+                                {name === 'Thuy' ? ' ***Your wife, Thuy, is ordering the same thing. Tell her to stop using your credit card!***' : `${name} is ordering the same thing`}
                             </DialogContentText>
                         ))
                     )}

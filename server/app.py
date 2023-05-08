@@ -7,6 +7,7 @@ from models import User, Item, Order
 import re
 
 
+
 # @app.before_request
 # def check_if_logged_in():
 #     if not session.get('user_id'):
@@ -34,6 +35,15 @@ class SignUp(Resource):
             flash('Username already taken!')
             return jsonify({"error": "There is already a user with this name"}), 409
 
+        if not firstname.isalpha() or not lastname.isalpha():
+            return jsonify({"error": "First name and last name should contain only alphabetic characters"}), 400
+
+        if not email or not password or not password_confirmation or not firstname or not lastname or not dob:
+            return jsonify({"error": "All fields are required"}), 400
+
+        if password != password_confirmation:
+            return jsonify({"error": "Password and password confirmation do not match"}), 400
+
         hashed_password = bcrypt.generate_password_hash(password)
 
         new_user = User(
@@ -55,7 +65,10 @@ class Login(Resource):
         email = request.get_json().get('email')
         password = request.get_json().get('password')
         user = User.query.filter(User.email == email).first()
-        # if user:
+
+        if not email or not password:
+            return {'error': 'Email and password are required'}, 400
+
         if user.authenticate(password):
             session['user_id'] = user.id
             session.permanent = True
@@ -99,8 +112,13 @@ class UserByID(Resource):
     def patch(self, id):
         if id not in [i.id for i in User.query.all()]:
             return make_response({'message': 'User not Found, please try again'}, 404)
+
         else:
             data = request.get_json()
+
+            if not data:
+                return make_response({'error': 'Invalid data'}, 400)
+
             user = User.query.filter(User.id==id).first()
             for key in data.keys():
                 setattr(user, key, data[key])
@@ -123,25 +141,30 @@ class UserByID(Resource):
 
 class Items(Resource):
     def get(self):
-        # items = []
-        # for item in Item.query.all():
-        #     i= {
-        #         "id": item.id,
-        #         "name": item.name,
-        #         "category": item.category,
-        #         "image": item.image,
-        #         "description": item.description,
-        #         "in_stock": item.in_stock,
-        #         "price": item.price,
-        #         "price_id": item.price_id,
-        #         # 'users': item.users
-        #     }
-        #     items.append(i)
         items = [i.to_dict() for i in Item.query.all()]
         return make_response(items, 200)
 
     def post(self):
         data = request.get_json()
+
+        required_fields = ['name', 'category', 'image', 'description', 'in_stock', 'price', 'price_id']
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            error_message = f"Missing required fields: {', '.join(missing_fields)}"
+            return make_response(jsonify(error=error_message), 400)
+
+        if not isinstance(data['name'], str) or not isinstance(data['category'], str) or not isinstance(data['description'], str):
+            return make_response(jsonify(error="Invalid data type for 'name' or 'category' or 'description'"), 400)
+        if not isinstance(data['image'], str) or not data['image'].startswith('http'):
+            return make_response(jsonify(error="Invalid image URL"), 400)
+        if not isinstance(data['in_stock'], bool):
+            return make_response(jsonify(error="Invalid data type for 'in_stock'"), 400)
+        if not isinstance(data['price'], (int, float)) or data['price'] <= 0:
+            return make_response(jsonify(error="Invalid price"), 400)
+        if not isinstance(data['price_id'], str):
+            return make_response(jsonify(error="Invalid data type for 'price_id'"), 400)
+
+
         new_item = Item(
             name = data['name'],
             category = data['category'],
@@ -149,6 +172,7 @@ class Items(Resource):
             description = data['description'],
             in_stock = data['in_stock'],
             price = data['price'],
+            price_id = data['price_id']
         )
 
         db.session.add(new_item)
@@ -167,6 +191,22 @@ class ItemByID(Resource):
             return make_response({'message': 'Item not Found, please try again'}, 404)
         else:
             data = request.get_json()
+
+            if 'name' in data and (not isinstance(data['name'], str) or not data['name'].isalpha()):
+                return make_response(jsonify(error="Invalid name format"), 400)
+            if 'category' in data and (not isinstance(data['category'], str) or not data['category'].isalpha()):
+                return make_response(jsonify(error="Invalid category format"), 400)
+            if 'image' in data and (not isinstance(data['image'], str) or not data['image'].startswith('http')):
+                return make_response(jsonify(error="Invalid image URL"), 400)
+            if 'description' in data and not isinstance(data['description'], str):
+                return make_response(jsonify(error="Invalid description format"), 400)
+            if 'in_stock' in data and not isinstance(data['in_stock'], bool):
+                return make_response(jsonify(error="Invalid in_stock format"), 400)
+            if 'price' in data and (not isinstance(data['price'], (int, float)) or data['price'] <= 0):
+                return make_response(jsonify(error="Invalid price format"), 400)
+            if 'price_id' in data and not isinstance(data['price_id'], str):
+                return make_response(jsonify(error="Invalid price_id format"), 400)
+
             item = Item.query.filter(Item.id==id).first()
             for key in data.keys():
                 setattr(item, key, data[key])
@@ -195,6 +235,14 @@ class Orders(Resource):
 
     def post(self):
         data = request.get_json()
+
+        if 'user_id' not in data or not isinstance(data['user_id'], int):
+            return make_response(jsonify(error="Invalid user ID"), 400)
+        if 'item_id' not in data or not isinstance(data['item_id'], int):
+            return make_response(jsonify(error="Invalid item ID"), 400)
+        if 'item_count' not in data or not isinstance(data['item_count'], int) or data['item_count'] <= 0:
+            return make_response(jsonify(error="Invalid item count"), 400)
+
         new_order = Order(
             user_id = data['user_id'],
             item_id = data['item_id'],
@@ -217,9 +265,18 @@ class OrderByID(Resource):
             return make_response({'message': 'Order not Found, please try again'}, 404)
         else:
             data = request.get_json()
+
+            if 'user_id' not in data or not isinstance(data['user_id'], int):
+                return make_response(jsonify(error="Invalid user ID"), 400)
+            if 'item_id' not in data or not isinstance(data['item_id'], int):
+                return make_response(jsonify(error="Invalid item ID"), 400)
+            if 'item_count' not in data or not isinstance(data['item_count'], int) or data['item_count'] <= 0:
+                return make_response(jsonify(error="Invalid item count"), 400)
+
             order = Order.query.filter(Order.id==id).first()
             for key in data.keys():
-                setattr(order, key, data[key])
+                if key != 'status':
+                    setattr(order, key, data[key])
             db.session.add(order)
             db.session.commit()
 
@@ -276,10 +333,10 @@ def create_checkout_session():
             success_url=YOUR_DOMAIN + '/checkout/success',
             cancel_url=YOUR_DOMAIN + '/checkout/fail',
         )
-        if checkout_session.payment_status == 'paid':
-            for item in cart_items:
-                item.status = 'completed'
-            db.session.commit()
+        # if checkout_session.payment_status == 'paid':
+        for item in cart_items:
+            item.status = 'completed'
+        db.session.commit()
 
 
     except Exception as e:
