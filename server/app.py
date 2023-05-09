@@ -342,37 +342,40 @@ def create_checkout_session():
         return str(e)
 
     return redirect(checkout_session.url, code=303)
-
+endpoint_secret = 'whsec_2c88fc29d4ce3d969b71887b2f3026752ec785fe1cde73fccfdce7d535bd67f7'
 @app.route('/webhook', methods=['POST'])
 def handle_webhook():
     payload = request.get_data()
     event = None
     user_id = session.get('user_id')
-
+    sig_header = request.headers['STRIPE_SIGNATURE']
 
     try:
         event = stripe.Webhook.construct_event(
-            payload, request.headers.get('Stripe-Signature'), stripe.api_key
+            payload, sig_header, endpoint_secret
         )
+
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            print(event.type)
+
+            cart_items = Order.query.filter(Order.user_id == user_id, Order.status != 'completed').all()
+
+            for item in cart_items:
+                item.status = 'completed'
+            db.session.commit()
+
     except ValueError as e:
         return str(e), 400
     except stripe.error.SignatureVerificationError as e:
         return str(e), 400
 
     # Handle the payment_intent.succeeded event
-    if event.type == 'payment_intent.succeeded':
 
-        print(event.type)
-
-        cart_items = Order.query.filter(Order.user_id == user_id, Order.status != 'completed').all()
-
-        for item in cart_items:
-            item.status = 'completed'
-        db.session.commit()
 
     return '', 200
 
-    
+
 
 class CheckEmail(Resource):
     def get(self):

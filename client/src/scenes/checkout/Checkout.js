@@ -215,7 +215,9 @@ function Checkout() {
 
                   <form
                   // onSubmit={handlePaymentSubmit}
-                  action="/create-checkout-session" method="POST"
+                  action="/create-checkout-session"
+                  method="POST"
+                  headers="Content-Type"
                   >
                   <Button
                     fullWidth
