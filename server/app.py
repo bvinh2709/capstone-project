@@ -266,12 +266,12 @@ class OrderByID(Resource):
         else:
             data = request.get_json()
 
-            if 'user_id' not in data or not isinstance(data['user_id'], int):
-                return make_response(jsonify(error="Invalid user ID"), 400)
-            if 'item_id' not in data or not isinstance(data['item_id'], int):
-                return make_response(jsonify(error="Invalid item ID"), 400)
-            if 'item_count' not in data or not isinstance(data['item_count'], int) or data['item_count'] <= 0:
-                return make_response(jsonify(error="Invalid item count"), 400)
+            # if 'user_id' not in data or not isinstance(data['user_id'], int):
+            #     return make_response(jsonify(error="Invalid user ID"), 401)
+            # if 'item_id' not in data or not isinstance(data['item_id'], int):
+            #     return make_response(jsonify(error="Invalid item ID"), 402)
+            # if 'item_count' not in data or not isinstance(data['item_count'], int) or data['item_count'] <= 0:
+            #     return make_response(jsonify(error="Invalid item count"), 403)
 
             order = Order.query.filter(Order.id==id).first()
             for key in data.keys():
@@ -329,12 +329,12 @@ def create_checkout_session():
             success_url=YOUR_DOMAIN + '/checkout/success',
             cancel_url=YOUR_DOMAIN + '/checkout/fail',
         )
-        print(checkout_session.status)
-        if checkout_session.status == 'complete':
-            print(checkout_session.status)
-            for item in cart_items:
-                item.status = 'completed'
-            db.session.commit()
+        # print(checkout_session.status)
+        # if checkout_session.status == 'complete':
+        # print(checkout_session.status)
+        for item in cart_items:
+            item.status = 'completed'
+        db.session.commit()
 
 
     except Exception as e:
